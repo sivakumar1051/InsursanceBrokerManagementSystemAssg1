@@ -55,4 +55,18 @@
 		<param-value>C:/JavaData</param-value>
 	</context-param>
 
+<servlet>
+        <servlet-name>PolicyManagementServlet</servlet-name>
+        <servlet-class>com.groupfive.Insurancemanagementsystem.Controller.PolicyManagementServlet</servlet-class>
+        <init-param>
+            <param-name>policyFilePath</param-name>
+            <param-value>C:/JavaData/policies.json</param-value> <!-- Path where the policies.json file will be saved -->
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>PolicyManagementServlet</servlet-name>
+        <url-pattern>/PolicyManagementServlet</url-pattern>
+    </servlet-mapping>
+
 </web-app>

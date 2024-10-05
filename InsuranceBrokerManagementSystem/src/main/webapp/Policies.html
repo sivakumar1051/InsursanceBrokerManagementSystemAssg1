@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Management</title>
+    <link rel="stylesheet" href="styles/Policies.css">
+    <script>
+        function showForm(formType) {
+            const forms = document.querySelectorAll('.form-container');
+            forms.forEach(form => form.style.display = 'none');
+            document.getElementById(formType).style.display = 'block';
+        }
+
+        function clearTable(tableId) {
+            const tableBody = document.getElementById(tableId);
+            tableBody.innerHTML = ''; // Clear any previous data
+        }
+
+        function fetchCustomers() {
+            fetch('PolicyManagementServlet?action=getCustomers')
+                .then(response => response.json())
+                .then(data => {
+                    const customerDropdown = document.getElementById('customerDropdown');
+                    customerDropdown.innerHTML = '<option value="">Select Customer</option>';
+                    data.forEach(customer => {
+                        const option = document.createElement('option');
+                        option.value = customer;
+                        option.textContent = customer;
+                        customerDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching customers:', error));
+        }
+
+        function fetchPolicies() {
+            fetch('PolicyManagementServlet?action=getPolicies')
+                .then(response => response.json())
+                .then(data => {
+                    const policyDropdown = document.getElementById('policyDropdown');
+                    policyDropdown.innerHTML = '<option value="">Select Policy</option>';
+                    data.forEach(policyNumber => {
+                        const option = document.createElement('option');
+                        option.value = policyNumber; // Directly using policy number
+                        option.textContent = policyNumber; // Displaying policy number as text
+                        policyDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching policies:', error));
+        }
+
+        window.onload = function() {
+            fetchCustomers();
+            fetchPolicies();
+        };
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            viewAllPolicies('policyTableDeleteBody'); // Call after DOM is loaded
+        });
+
+        function addPolicy() {
+            const formData = {
+                policyNumber: document.getElementById('policyNumber').value,
+                name: document.getElementById('name').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                coverageAmount: document.getElementById('coverageAmount').value,
+                premiumAmount: document.getElementById('premiumAmount').value,
+                policyType: document.getElementById('policyType').value,
+            };
+
+            fetch('PolicyManagementServlet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            })
+            .then(response => response.ok ? response.text() : Promise.reject(response.statusText))
+            .then(data => {
+                alert(data);
+                document.getElementById('addPolicyForm').reset();
+            })
+            .catch(error => alert('Error adding policy: ' + error));
+        }
+
+        function searchPolicy(viewOnly = false, tableBodyId, inputId) {
+            const searchId = document.getElementById(inputId).value;
+
+            fetch(`PolicyManagementServlet?action=search&query=${searchId}`)
+                .then(response => response.json())
+                .then(data => {
+                    clearTable(tableBodyId); // Clear existing data to avoid repetition
+                    data.forEach(policy => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${policy.policyNumber}</td>
+                            <td>${policy.name}</td>
+                            <td>${policy.startDate}</td>
+                            <td>${policy.endDate}</td>
+                            <td>${policy.coverageAmount}</td>
+                            <td>${policy.premiumAmount}</td>
+                            <td>${policy.policyType}</td>
+                            ${viewOnly ? '' : `<td><button onclick="openUpdatePopup('${policy.policyNumber}')">Update</button></td>`}
+                        `;
+                        document.getElementById(tableBodyId).appendChild(row);
+                    });
+                    document.getElementById(tableBodyId).parentElement.style.display = data.length > 0 ? 'table' : 'none';
+                })
+                .catch(error => console.error('Error searching policy:', error));
+        }
+
+        function searchPolicyForDelete(tableBodyId, inputId) {
+            const searchId = document.getElementById(inputId).value;
+
+            fetch(`PolicyManagementServlet?action=search&query=${searchId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById(tableBodyId);
+                    tableBody.innerHTML = ''; // Clear existing data to avoid repetition
+
+                    if (data.length > 0) {
+                        data.forEach(policy => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${policy.policyNumber}</td>
+                                <td>${policy.insuredName}</td>
+                                <td>${policy.startDate}</td>
+                                <td>${policy.coverageAmount}</td>
+                                <td>${policy.premiumAmount}</td>
+                                <td><button onclick="deleteSinglePolicy('${policy.policyNumber}')">Delete</button></td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                        tableBody.parentElement.style.display = 'table'; // Show the table
+                    } else {
+                        tableBody.parentElement.style.display = 'none'; // Hide the table if no data
+                    }
+                })
+                .catch(error => console.error('Error searching policy:', error));
+        }
+
+
+
+
+
+        function deleteSinglePolicy(policyNumber) {
+            fetch(`PolicyManagementServlet?action=delete&policyNumber=${policyNumber}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('deleteResponseMessage').innerText = 'Policy deleted successfully.';
+                    searchPolicyForDelete('policyTableDeleteBody', 'policyNumberToDelete'); // Refresh the table
+                } else {
+                    document.getElementById('deleteResponseMessage').innerText = 'Error deleting policy.';
+                }
+            })
+            .catch(error => console.error('Error deleting policy:', error));
+        }
+        
+        function clearTable(tableBodyId) {
+            const tableBody = document.getElementById(tableBodyId);
+            if (tableBody) {
+                tableBody.innerHTML = ''; // Clear existing data
+            } else {
+                console.error(`Table body with ID "${tableBodyId}" not found.`);
+            }
+        }
+
+
+
+
+        function viewAllPolicies(viewOnly = false, tableBodyId) {
+        	
+            fetch('PolicyManagementServlet?action=viewAll')
+                .then(response => response.json())
+                .then(data => {
+                    clearTable(tableBodyId); // Clear existing data to avoid repetition
+                    data.forEach(policy => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${policy.policyNumber}</td>
+                            <td>${policy.name}</td>
+                            <td>${policy.startDate}</td>
+                            <td>${policy.endDate}</td>
+                            <td>${policy.coverageAmount}</td>
+                            <td>${policy.premiumAmount}</td>
+                            <td>${policy.policyType}</td>
+                            ${viewOnly ? '' : `<td><button onclick="openUpdatePopup('${policy.policyNumber}')">Update</button></td>`}
+                        `;
+                        document.getElementById(tableBodyId).appendChild(row);
+                    });
+                    document.getElementById(tableBodyId).parentElement.style.display = data.length > 0 ? 'table' : 'none';
+                })
+                .catch(error => console.error('Error fetching all policies:', error));
+        }
+
+        function openUpdatePopup(policyNumber) {
+            fetch(`PolicyManagementServlet?action=search&query=${policyNumber}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const policy = data[0];
+                        document.getElementById('policyNumberUpdate').value = policy.policyNumber;
+                        document.getElementById('nameUpdate').value = policy.name;
+                        document.getElementById('startDateUpdate').value = policy.startDate;
+                        document.getElementById('endDateUpdate').value = policy.endDate;
+                        document.getElementById('coverageAmountUpdate').value = policy.coverageAmount;
+                        document.getElementById('premiumAmountUpdate').value = policy.premiumAmount;
+                        document.getElementById('policyTypeUpdate').value = policy.policyType;
+                        document.getElementById('updateSubmitButton').disabled = false;
+                        document.getElementById('popupWindow').style.display = 'block';
+                        alert("Scroll down to update details ");
+                    }
+                })
+                .catch(error => console.error('Error fetching policy details for update:', error));
+        }
+
+        function closePopup() {
+            document.getElementById('popupWindow').style.display = 'none';
+        }
+
+        function updatePolicy() {
+            const updatedPolicy = {
+                policyNumber: document.getElementById('policyNumberUpdate').value,
+                name: document.getElementById('nameUpdate').value,
+                startDate: document.getElementById('startDateUpdate').value,
+                endDate: document.getElementById('endDateUpdate').value,
+                coverageAmount: document.getElementById('coverageAmountUpdate').value,
+                premiumAmount: document.getElementById('premiumAmountUpdate').value,
+                policyType: document.getElementById('policyTypeUpdate').value,
+            };
+
+            fetch('PolicyManagementServlet', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedPolicy),
+            })
+            .then(response => response.ok ? response.text() : Promise.reject(response.statusText))
+            .then(data => {
+                alert(data);
+                closePopup();
+                viewAllPolicies(); // Refresh the policies list after update
+            })
+            .catch(error => alert('Error updating policy: ' + error));
+        }
+        
+        function assignPolicy() {
+            const selectedCustomer = document.getElementById('customerDropdown').value;
+            const selectedPolicy = document.getElementById('policyDropdown').value;
+
+            if (!selectedCustomer || !selectedPolicy) {
+                alert('Please select both a customer and a policy.');
+                return;
+            }
+
+            const assignmentData = {
+                customerName: selectedCustomer,
+                policyName: selectedPolicy,
+            };
+
+            fetch('PolicyManagementServlet?action=assign', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(assignmentData),
+            })
+            .then(response => response.ok ? response.text() : Promise.reject(response.statusText))
+            .then(data => {
+                alert(data); // Alert the response message from the server
+                // Optionally, you can reset the dropdowns or update the UI as needed
+                document.getElementById('customerDropdown').value = '';
+                document.getElementById('policyDropdown').value = '';
+            })
+            .catch(error => alert('Error assigning policy: ' + error));
+        }
+    </script>
+</head>
+<body>
+
+<header>
+    <nav>
+        <ul>
+            <li><a href="#" onclick="showForm('addPolicyForm')">Add Policy</a></li>
+            <li><a href="#" onclick="showForm('updatePolicyForm')">Update Policy</a></li>
+            <li><a href="#" onclick="showForm('viewPolicyForm')">View Policy</a></li>
+            <li><a href="#" onclick="showForm('deletePolicyForm')">Delete Policy</a></li>
+            <li><a href="#" onclick="showForm('assignPolicyForm')">Assign Policy</a></li>
+            <li style="float:right"><a href="index.html">Home</a></li>
+        </ul>
+    </nav>
+</header>
+
+<!-- Add Policy Form -->
+<div class="form-container" id="addPolicyForm" style="display: none;">
+    <h2>Add Policy</h2>
+    <form onsubmit="addPolicy(); return false;">
+        <label for="policyNumber">Policy Number:</label>
+        <input type="text" id="policyNumber" required>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" required>
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" required>
+        <label for="coverageAmount">Coverage Amount:</label>
+        <input type="number" id="coverageAmount" required>
+        <label for="premiumAmount">Premium Amount:</label>
+        <input type="number" id="premiumAmount" required>
+        <label for="policyType">Policy Type:</label>
+        <input type="text" id="policyType" required>
+        <button type="submit">Add Policy</button>
+    </form>
+</div>
+
+<!-- Update Policy Form -->
+<div class="form-container" id="updatePolicyForm" style="display: none;">
+    <h2>Update Policy</h2>
+    <input type="text" id="searchId" placeholder="Enter Policy Number to Search">
+    <button onclick="searchPolicy(false, 'policyTableBody', 'searchId')">Search</button>
+    <button onclick="viewAllPolicies(false, 'policyTableBody')">View All Policies</button>
+    <table id="policyTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>Policy Number</th>
+                <th>Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Coverage Amount</th>
+                <th>Premium Amount</th>
+                <th>Policy Type</th>
+                <th>Update</th>
+            </tr>
+        </thead>
+        <tbody id="policyTableBody"></tbody>
+    </table>
+</div>
+
+<!-- Popup for updating policy -->
+<div id="popupWindow" style="display: none;">
+    <form onsubmit="updatePolicy(); return false;">
+        <h2>Update Policy</h2>
+        <label for="policyNumberUpdate">Policy Number:</label>
+        <input type="text" id="policyNumberUpdate" readonly>
+        <label for="nameUpdate">Name:</label>
+        <input type="text" id="nameUpdate" required>
+        <label for="startDateUpdate">Start Date:</label>
+        <input type="date" id="startDateUpdate" required>
+        <label for="endDateUpdate">End Date:</label>
+        <input type="date" id="endDateUpdate" required>
+        <label for="coverageAmountUpdate">Coverage Amount:</label>
+        <input type="number" id="coverageAmountUpdate" required>
+        <label for="premiumAmountUpdate">Premium Amount:</label>
+        <input type="number" id="premiumAmountUpdate" required>
+        <label for="policyTypeUpdate">Policy Type:</label>
+        <input type="text" id="policyTypeUpdate" required>
+        <button type="submit" id="updateSubmitButton" disabled>Submit</button>
+        <button type="button" onclick="closePopup()">Cancel</button>
+    </form>
+</div>
+
+<!-- View Policy Form -->
+<div class="form-container" id="viewPolicyForm" style="display: none;">
+    <h2>View Policy</h2>
+    <input type="text" id="searchIdView" placeholder="Enter Policy Number to Search">
+    <button onclick="searchPolicy(true, 'policyTableViewBody', 'searchIdView')">Search</button>
+    <button onclick="viewAllPolicies(true, 'policyTableViewBody')">View All Policies</button>
+    <table id="policyTableView" style="display: none;">
+        <thead>
+            <tr>
+                <th>Policy Number</th>
+                <th>Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Coverage Amount</th>
+                <th>Premium Amount</th>
+                <th>Policy Type</th>
+            </tr>
+        </thead>
+        <tbody id="policyTableViewBody"></tbody>
+    </table>
+</div>
+
+<!-- Delete Policy Form -->
+<div class="form-container" id="deletePolicyForm" style="display: none;">
+    <h2>Delete Policy</h2>
+    <input type="text" id="policyNumberToDelete" placeholder="Enter Policy Number to Search">
+    <button onclick="searchPolicyForDelete('policyTableDeleteBody', 'policyNumberToDelete')">Search</button>
+    <button onclick="viewAllPolicies('policyTableDeleteBody')">View All Policies</button>
+    <table id="policyTableDelete" style="display: none;">
+        <thead>
+            <tr>
+                <th>Policy Number</th>
+                <th>Insured Name</th>
+                <th>Start Date</th>
+                <th>Coverage Amount</th>
+                <th>Premium Amount</th>
+                <th>Action</th> <!-- This column indicates the action -->
+            </tr>
+        </thead>
+        <tbody id="policyTableDeleteBody"></tbody>
+    </table>
+    <p id="deleteResponseMessage"></p>
+</div>
+
+
+
+
+
+
+
+<!-- Assign Policy Form -->
+<div class="form-container" id="assignPolicyForm" style="display: none;">
+    <h2>Assign Policy</h2>
+    <label for="customerDropdown">Select Customer:</label>
+    <select id="customerDropdown"></select>
+    <label for="policyDropdown">Select Policy:</label>
+    <select id="policyDropdown"></select>
+    <button type="button" onclick="assignPolicy()">Assign Policy</button>
+</div>
+
+</body>
+</html>
+       
