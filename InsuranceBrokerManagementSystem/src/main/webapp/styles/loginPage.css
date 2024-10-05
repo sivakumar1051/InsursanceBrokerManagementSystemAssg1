@@ -1,0 +1,146 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    background: #1a1a2e;
+    color: #ffffff;
+    letter-spacing: 1px;
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    position: relative;
+    width: 100%;
+    max-width: 35rem;
+    max-height: 50rem;
+    padding: 2rem;
+}
+
+.form-container {
+    border: 1px solid hsla(0, 0%, 65%, 0.158);
+    box-shadow: 0 0 36px 1px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    backdrop-filter: blur(20px);
+    z-index: 99;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-container form input {
+    display: block;
+    padding: 14px;
+    width: 100%;
+    margin: 1rem 0;
+    color: black;
+    font-weight: bold;
+    outline: none;
+    background-color: rgb(245, 241, 241);
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    font-size: 15px;
+    backdrop-filter: blur(15px);
+}
+
+.login-container form input:focus {
+    box-shadow: 0 0 16px 1px rgba(0, 0, 0, 0.2);
+    animation: wobble 0.3s ease-in;
+}
+
+.login-container form button {
+    background-color: #007bff;
+    color: #ffffff;
+    display: block;
+    padding: 13px;
+    border-radius: 5px;
+    outline: none;
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    border: none;
+    backdrop-filter: blur(15px);
+    transition: all 0.1s ease-in-out;
+}
+
+.login-container form button:hover {
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+}
+
+.circle {
+    width: 8rem;
+    height: 8rem;
+    background: #0f3460;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.illustration {
+    position: absolute;
+    top: -14%;
+    right: -2px;
+    width: 90%;
+}
+
+.circle-one {
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transform: translate(-45%, -45%);
+}
+
+.circle-two {
+    bottom: 0;
+    right: 0;
+    z-index: -1;
+    transform: translate(45%, 45%);
+}
+
+.opacity {
+    opacity: 0.6;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+@keyframes wobble {
+    0% { transform: scale(1.025); }
+    25% { transform: scale(1); }
+    75% { transform: scale(1.025); }
+    100% { transform: scale(1); }
+}

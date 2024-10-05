@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="styles/custometManagement.css">
+    <script>
+        function showForm(formType) {
+            const forms = document.querySelectorAll('.form-container');
+            forms.forEach(form => form.style.display = 'none');
+            document.getElementById(formType).style.display = 'block';
+            document.getElementById('customersSubheader').style.display = 'none';
+        }
+
+        async function searchCustomer(event) {
+            event.preventDefault();
+            const searchId = document.getElementById('searchId').value;
+            const customerDetailsDiv = document.getElementById('customerDetails');
+            const responseMessage = document.getElementById('responseMessage');
+
+            try {
+                const response = await fetch('CustomerManagementServlet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'searchId=' + encodeURIComponent(searchId)
+                });
+
+                const data = await response.json();
+
+                if (data.customer) {
+                    const customer = data.customer;
+                    customerDetailsDiv.innerHTML = `
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${customer.id}</td>
+                                    <td>${customer.name}</td>
+                                    <td>${customer.email}</td>
+                                    <td>${customer.phone}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                    responseMessage.innerText = '';
+                } else {
+                    customerDetailsDiv.innerHTML = '';
+                    responseMessage.innerText = "Customer doesn't exist.";
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                customerDetailsDiv.innerHTML = '';
+                responseMessage.innerText = "Error retrieving customer details.";
+            }
+        }
+        
+        function searchCustomerForUpdate(event) {
+            event.preventDefault();
+            const updateCustomerId = document.getElementById('updateCustomerId').value;
+            const updateResponseMessage = document.getElementById('updateResponseMessage');
+            const updateFormContainer = document.getElementById('updateFormContainer');
+
+            fetch('CustomerManagementServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'searchId=' + encodeURIComponent(updateCustomerId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.customer) {
+                    const customer = data.customer;
+                    document.getElementById('updateName').value = customer.name;
+                    document.getElementById('updateEmail').value = customer.email;
+                    document.getElementById('updatePhone').value = customer.phone;
+                    updateFormContainer.style.display = 'block';
+                    updateResponseMessage.innerText = '';
+                } else {
+                    updateFormContainer.style.display = 'none';
+                    updateResponseMessage.innerText = "Customer doesn't exist.";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                updateResponseMessage.innerText = "Error retrieving customer details.";
+            });
+        }
+
+        function updateCustomerDetails(event) {
+            event.preventDefault();
+            const updateCustomerId = document.getElementById('updateCustomerId').value;
+            const name = document.getElementById('updateName').value;
+            const email = document.getElementById('updateEmail').value;
+            const phone = document.getElementById('updatePhone').value;
+
+            fetch('CustomerManagementServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `updateCustomerId=${encodeURIComponent(updateCustomerId)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert(data.message);
+                    document.getElementById('updateFormContainer').style.display = 'none';
+                    document.getElementById('updateCustomerId').value = '';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error updating customer details.");
+            });
+        }
+        
+        function searchCustomerForDelete(event) {
+            event.preventDefault();
+            const deleteCustomerId = document.getElementById('deleteCustomerId').value;
+            const deleteResponseMessage = document.getElementById('deleteResponseMessage');
+            const customerDetailsForDeleteDiv = document.getElementById('customerDetailsForDelete');
+
+            fetch('CustomerManagementServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'searchId=' + encodeURIComponent(deleteCustomerId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.customer) {
+                    const customer = data.customer;
+                    customerDetailsForDeleteDiv.innerHTML = `
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${customer.id}</td>
+                                    <td>${customer.name}</td>
+                                    <td>${customer.email}</td>
+                                    <td>${customer.phone}</td>
+                                    <td><button class="delete-button" onclick="confirmDelete('${customer.id}', '${customer.name}')">Delete</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                    deleteResponseMessage.innerText = '';
+                } else {
+                    customerDetailsForDeleteDiv.innerHTML = '';
+                    deleteResponseMessage.innerText = "Customer doesn't exist.";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                customerDetailsForDeleteDiv.innerHTML = '';
+                deleteResponseMessage.innerText = "Error retrieving customer details.";
+            });
+        }
+        
+        function confirmDelete(customerId, customerName) {
+            const confirmation = confirm(`Are you sure you want to delete customer ${customerName}?`);
+            if (confirmation) {
+                deleteCustomer(customerId);
+            }
+        }
+        
+        function deleteCustomer(customerId) {
+
+            fetch('CustomerManagementServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'deleteCustomerId=' + encodeURIComponent(customerId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === "success") {
+                    document.getElementById('customerDetailsForDelete').innerHTML = '';
+                    document.getElementById('deleteCustomerId').value = '';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error deleting customer.");
+            });
+        }
+
+    </script>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar">
+            <ul class="nav-links">
+                <li><a href="#" onclick="showForm('addCustomerForm')">Add Customer</a></li>
+                <li><a href="#" onclick="showForm('viewCustomerForm')">View Customer</a></li>
+                <li><a href="#" onclick="showForm('updateCustomerForm')">Update Customer</a></li>
+                <li><a href="#" onclick="showForm('deleteCustomerForm')">Delete Customer</a></li>
+            </ul>
+            <div><a href="landingPage.html" class="home-button">Home</a></div>
+        </nav>
+    </header>
+
+
+    <main style="padding-top: 80px;">
+
+        <div class="form-container" id="addCustomerForm" style="display: none;">
+            <h3>Add Customer</h3>
+            <form action="CustomerManagementServlet" method="post" class="styled-form" onsubmit="submitCustomerForm(event)">
+                <label for="id">ID:</label>
+                <input type="text" id="id" name="id" class="text-input" required>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" class="text-input" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="text-input" required>
+                <label for="phone">Phone:</label>
+                <input type="text" id="phone" name="phone" class="text-input" required>
+                <button type="submit" class="styled-button">Submit</button>
+            </form>
+            <div id="formMessage"></div>
+        </div>
+
+        <div class="form-container" id="viewCustomerForm" style="display: none;">
+            <h3>View Customer</h3>
+            <form id="searchCustomerForm" class="styled-form" onsubmit="searchCustomer(event);">
+                <label for="searchId">Customer ID:</label>
+                <input type="text" id="searchId" name="searchId" class="text-input" required>
+                <button type="submit" class="styled-button">Search</button>
+            </form>
+            <div id="responseMessage" style="color: red; margin-top: 1rem;"></div>
+            <div id="customerDetails"></div>
+        </div>
+
+    <div class="form-container content-section" id="updateCustomerForm" style="display: none;">
+        <h3>Update Customer</h3>
+        <form id="searchCustomerForUpdateForm" class="styled-form" onsubmit="searchCustomerForUpdate(event);">
+            <label for="updateCustomerId">Customer ID:</label>
+            <input type="text" id="updateCustomerId" name="updateCustomerId" class="text-input" required>
+            <button type="submit" class="styled-button">Search</button>
+        </form>
+        <div id="updateResponseMessage" style="color: red; margin-top: 1rem;"></div>
+        <div id="updateFormContainer" style="display: none;">
+            <form id="updateCustomerFormDetails" class="styled-form" onsubmit="updateCustomerDetails(event);">
+                <label for="name">Name:</label>
+                <input type="text" id="updateName" name="name" class="text-input" required>
+                <label for="email">Email:</label>
+                <input type="email" id="updateEmail" name="email" class="text-input" required>
+                <label for="phone">Phone:</label>
+                <input type="text" id="updatePhone" name="phone" class="text-input" required>
+                <button type="submit" class="styled-button">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="form-container content-section" id="deleteCustomerForm" style="display: none;">
+        <h3>Delete Customer</h3>
+        <form id="searchCustomerForDeleteForm" class="styled-form" onsubmit="searchCustomerForDelete(event);">
+            <label for="deleteCustomerId">Customer ID:</label>
+            <input type="text" id="deleteCustomerId" name="deleteCustomerId" class="text-input" required>
+            <button type="submit" class="styled-button">Search</button>
+        </form>
+        <div id="deleteResponseMessage" style="color: red; margin-top: 1rem;"></div>
+        <div id="customerDetailsForDelete" style="margin-top: 1rem;"></div>
+    </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Your Company. All rights reserved. | <a href="#">Privacy Policy</a></p>
+        </div>
+    </footer>
+</body>
+
+</html>
