@@ -23,7 +23,7 @@ public  class PolicyRepositoryImplementation implements IPolicyRepository {
     private List<Policy> policies = new ArrayList<>();
     private List<Policy> tempPolicies = new ArrayList<>();
     private List<Customer> customers = new ArrayList<>();
-    String custFilePath="C:/JavaData/customer.json";
+    String custFilePath="C:/JavaData/customers.json";
 
     private List<String> tempPolicynames = new ArrayList<>();
     private List<String> tempCustomernames = new ArrayList<>();
