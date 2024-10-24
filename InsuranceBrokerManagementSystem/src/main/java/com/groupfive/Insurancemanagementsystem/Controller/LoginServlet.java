@@ -1,7 +1,6 @@
 package com.groupfive.Insurancemanagementsystem.Controller;
 
 import com.groupfive.Insurancemanagementsystem.Repository.BrokerRepository;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,10 +15,8 @@ public class LoginServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        // Initialize BrokerRepository once to be reused by all requests
-        ServletContext context = getServletContext();
-        String fileStoragePath = context.getInitParameter("fileStoragePath");
-        this.brokerRepository = new BrokerRepository(fileStoragePath);
+        // Initialize BrokerRepository without any parameters (it uses the default constructor)
+        this.brokerRepository = new BrokerRepository();
     }
 
     @Override
@@ -28,7 +25,7 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        // Use synchronized block to ensure thread-safe file access
+        // Use synchronized block to ensure thread-safe database access
         synchronized (this) {
             try {
                 // Validate Login within synchronized block
@@ -39,8 +36,8 @@ public class LoginServlet extends HttpServlet {
                     response.sendRedirect("loginPage.html?error=Invalid email or password. Please try again.");
                 }
             } catch (Exception e) {
-                // File not found
-                response.sendRedirect("loginPage.html?error=Broker data not found.");
+                // Database error
+                response.sendRedirect("loginPage.html?error=Error validating login. Please try again.");
             }
         }
     }

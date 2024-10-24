@@ -3,7 +3,6 @@ package com.groupfive.Insurancemanagementsystem.Controller;
 import com.groupfive.Insurancemanagementsystem.Model.Broker;
 import com.groupfive.Insurancemanagementsystem.Repository.BrokerRepository;
 
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,15 +13,13 @@ import java.net.URLEncoder;
 
 public class BrokerRegistrationServlet extends HttpServlet {
 
-    private BrokerRepository brokerRepository; // Class-level variable for shared repository
+    private BrokerRepository brokerRepository;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        // Initialize BrokerRepository once to be reused by all requests
-        ServletContext context = getServletContext();
-        String fileStoragePath = context.getInitParameter("fileStoragePath");
-        this.brokerRepository = new BrokerRepository(fileStoragePath);
+        // Initialize BrokerRepository to use a database connection
+        this.brokerRepository = new BrokerRepository();
     }
 
     @Override
@@ -37,15 +34,14 @@ public class BrokerRegistrationServlet extends HttpServlet {
         // Create a new Broker object
         Broker broker = new Broker(name, email, phone, password);
 
-        // Use synchronized block to ensure thread-safe file writing
         synchronized (this) {
             try {
-                // Write the broker data to the file within the synchronized block
+                // Save the broker to the database
                 brokerRepository.saveBroker(broker);
 
                 // Redirect to login page after successful registration
                 response.sendRedirect("loginPage.html");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace(); // Print the stack trace for debugging
 
                 // Redirect back to the registration page with an error message

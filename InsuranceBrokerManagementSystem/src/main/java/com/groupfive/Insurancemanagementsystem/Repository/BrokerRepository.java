@@ -1,89 +1,91 @@
 package com.groupfive.Insurancemanagementsystem.Repository;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupfive.Insurancemanagementsystem.Model.Broker;
+import com.groupfive.Insurancemanagementsystem.Util.DatabaseUtility;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BrokerRepository {
-	private final Path brokerFilePath;
+    private Connection connection;
 
-	public BrokerRepository(String fileStoragePath) {
-		this.brokerFilePath = Paths.get(fileStoragePath, "Broker.json");
-	}
+    public BrokerRepository() {
+        try {
+            // Establish a database connection using DatabaseUtility class
+            this.connection = DatabaseUtility.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public void saveBroker(Broker broker) throws IOException {
+    // Save Broker to the database
+    public void saveBroker(Broker broker) throws SQLException {
+        String sql = "INSERT INTO brokers (name, email, phone, password) VALUES (?, ?, ?, ?)";
 
-		Path dataDirPath = brokerFilePath.getParent();
-		if (!Files.exists(dataDirPath)) {
-			Files.createDirectories(dataDirPath);
-		}
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, broker.getName());
+            pstmt.setString(2, broker.getEmail());
+            pstmt.setString(3, broker.getPhone());
+            pstmt.setString(4, broker.getPassword());
+            pstmt.executeUpdate();
+        }
+    }
 
-		JSONArray brokersArray = new JSONArray();
-		if (Files.exists(brokerFilePath)) {
-			String jsonContent = new String(Files.readAllBytes(brokerFilePath)).trim();
-			if (!jsonContent.isEmpty()) {
-				brokersArray = new JSONArray(jsonContent);
-			}
-		}
+    // Retrieve all brokers from the database
+    public List<Broker> getAllBrokers() throws SQLException {
+        List<Broker> brokers = new ArrayList<>();
+        String sql = "SELECT * FROM brokers";
 
-		JSONObject newBrokerJson = new JSONObject();
-		newBrokerJson.put("name", broker.getName());
-		newBrokerJson.put("email", broker.getEmail());
-		newBrokerJson.put("phone", broker.getPhone());
-		newBrokerJson.put("password", broker.getPassword());
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-		brokersArray.put(newBrokerJson);
+            while (rs.next()) {
+                Broker broker = new Broker(
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("phone"),
+                        rs.getString("password")
+                );
+                brokers.add(broker);
+            }
+        }
+        return brokers;
+    }
 
-		try (FileWriter fileWriter = new FileWriter(brokerFilePath.toFile())) {
-			fileWriter.write(brokersArray.toString(4));
-		}
-	}
+    // Check if a broker exists with the given email and password
+    public boolean isValidBroker(String email, String password) throws SQLException {
+        String sql = "SELECT * FROM brokers WHERE email = ? AND password = ?";
 
-	private String brokerToJson(Broker broker) {
-		ObjectMapper objectMapper = new ObjectMapper();
-		try {
-			return objectMapper.writeValueAsString(broker);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "{}";
-		}
-	}
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
 
-	public JSONArray getAllBrokers() throws IOException {
-		if (Files.exists(brokerFilePath)) {
-			String jsonContent = new String(Files.readAllBytes(brokerFilePath)).trim();
+            return rs.next(); // Returns true if a record is found, false otherwise
+        }
+    }
 
-			if (!jsonContent.startsWith("[")) {
-				jsonContent = "[" + jsonContent + "]";
-			}
+    // Delete a broker by email
+    public boolean deleteBroker(String email) throws SQLException {
+        String sql = "DELETE FROM brokers WHERE email = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
 
-			try {
-				return new JSONArray(jsonContent);
-			} catch (JSONException e) {
-				throw new IOException("Broker data is corrupted or invalid JSON.");
-			}
-		} else {
-			return new JSONArray();
-		}
-	}
+    // Update broker details
+    public void updateBroker(Broker broker) throws SQLException {
+        String sql = "UPDATE brokers SET name = ?, phone = ?, password = ? WHERE email = ?";
 
-	public boolean isValidBroker(String email, String password) throws IOException {
-		JSONArray brokersArray = getAllBrokers();
-		for (int i = 0; i < brokersArray.length(); i++) {
-			JSONObject broker = brokersArray.getJSONObject(i);
-			if (broker.getString("email").equals(email) && broker.getString("password").equals(password)) {
-				return true;
-			}
-		}
-		return false;
-	}
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, broker.getName());
+            pstmt.setString(2, broker.getPhone());
+            pstmt.setString(3, broker.getPassword());
+            pstmt.setString(4, broker.getEmail());
+            pstmt.executeUpdate();
+        }
+    }
 }

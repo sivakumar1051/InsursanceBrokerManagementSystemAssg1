@@ -19,7 +19,6 @@ public class CustomerManagementServlet extends HttpServlet {
         String searchId = request.getParameter("searchId");
         String updateCustomerId = request.getParameter("updateCustomerId");
         String deleteCustomerId = request.getParameter("deleteCustomerId");
-        System.out.println("Customer Delete"+deleteCustomerId);
 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
@@ -42,18 +41,14 @@ public class CustomerManagementServlet extends HttpServlet {
             // Update Customers
             if (updateCustomerId != null && !updateCustomerId.isEmpty()) {
                 Customer existingCustomer = customerRepository.findCustomerById(updateCustomerId);
-                System.out.println(existingCustomer.getEmail() + "," + existingCustomer.getName());
-                // Update the existing customer's details
                 String updatedName = request.getParameter("name");
                 String updatedEmail = request.getParameter("email");
                 String updatedPhone = request.getParameter("phone");
-                System.out.println(updatedName + "," + updatedEmail);
 
                 existingCustomer.setName(updatedName);
                 existingCustomer.setEmail(updatedEmail);
                 existingCustomer.setPhone(updatedPhone);
 
-                customerRepository.saveAllCustomers(customerRepository.findAllCustomers()); // Save the updated list
                 customerRepository.updateCustomer(customerRepository.findAllCustomers(), updateCustomerId, existingCustomer);
 
                 out.print("{\"status\": \"success\", \"message\": \"Customer updated successfully\"}");

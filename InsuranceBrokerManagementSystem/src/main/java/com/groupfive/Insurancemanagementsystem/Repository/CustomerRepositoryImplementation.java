@@ -1,112 +1,106 @@
 package com.groupfive.Insurancemanagementsystem.Repository;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import com.groupfive.Insurancemanagementsystem.Model.Customer;
+import com.groupfive.Insurancemanagementsystem.Util.DatabaseUtility;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.groupfive.Insurancemanagementsystem.Model.Customer;
-
 public class CustomerRepositoryImplementation implements ICustomerRepository {
-    private static final String JSON_FILE_PATH = "C:\\JavaData\\customers.json";
+    
+    private Connection connection;
 
-    @Override
-    public void addCustomer(Customer customer) {
-        List<Customer> customers = findAllCustomers();
-        customers.add(customer);
-        saveAllCustomers(customers);
-    }
-
-    @Override
-    public Customer findCustomerById(String id) {
-        List<Customer> customers = findAllCustomers();
-        return customers.stream()
-                        .filter(customer -> customer.getId().equals(id))
-                        .findFirst()
-                        .orElse(null);
-    }
-
-    @Override
-    public List<Customer> findAllCustomers() {
-        List<Customer> customers = new ArrayList<>();
-        File file = new File(JSON_FILE_PATH);
-        if (file.exists()) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String jsonString = reader.lines().reduce("", String::concat);
-                if (jsonString.startsWith("[") && jsonString.endsWith("]")) {
-                    String[] customerArray = jsonString.substring(1, jsonString.length() - 1).trim().split("},\\s*\\{");
-                    for (String customerData : customerArray) {
-                        customerData = customerData.replaceAll("[{}]", "").trim();
-                        String[] attributes = customerData.split(",\\s*");
-                        String id = null, name = null, email = null, phone = null;
-                        for (String attribute : attributes) {
-                            String[] keyValue = attribute.split(":");
-                            if (keyValue.length == 2) {
-                                String key = keyValue[0].replaceAll("\"", "").trim();
-                                String value = keyValue[1].replaceAll("\"", "").trim();
-                                switch (key) {
-                                    case "id": id = value; break;
-                                    case "name": name = value; break;
-                                    case "email": email = value; break;
-                                    case "phone": phone = value; break;
-                                }
-                            }
-                        }
-                        customers.add(new Customer(id, name, email, phone));
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return customers;
-    }
-
-    public void saveAllCustomers(List<Customer> customers) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(JSON_FILE_PATH))) {
-            writer.write("[");
-            for (int i = 0; i < customers.size(); i++) {
-                Customer customer = customers.get(i);
-                writer.write(String.format(
-                    "{\"id\":\"%s\",\"name\":\"%s\",\"email\":\"%s\",\"phone\":\"%s\"}",
-                    customer.getId(), customer.getName(), customer.getEmail(), customer.getPhone()
-                ));
-                if (i < customers.size() - 1) {
-                    writer.write(",");
-                }
-            }
-            writer.write("]");
-        } catch (IOException e) {
+    public CustomerRepositoryImplementation() {
+        try {
+            this.connection = DatabaseUtility.getConnection(); // Get the connection from DatabaseUtility
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void updateCustomer(List<Customer> customers, String custId, Customer updCustomer) {
-        for (Customer customer : customers) {
-            if (customer.getId().equals(custId)) {
-                customer.setEmail(updCustomer.getEmail());
-                customer.setName(updCustomer.getName());
-                customer.setPhone(updCustomer.getPhone());
-                break;
-            }
+    public void addCustomer(Customer customer) {
+        String sql = "INSERT INTO customers (id, name, email, phone) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, customer.getId());
+            pstmt.setString(2, customer.getName());
+            pstmt.setString(3, customer.getEmail());
+            pstmt.setString(4, customer.getPhone());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        saveAllCustomers(customers);
+    }
+
+    @Override
+    public Customer findCustomerById(String id) {
+        String sql = "SELECT * FROM customers WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new Customer(
+                    rs.getString("id"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("phone")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null if customer is not found
+    }
+
+    @Override
+    public List<Customer> findAllCustomers() {
+        List<Customer> customers = new ArrayList<>();
+        String sql = "SELECT * FROM customers";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                customers.add(new Customer(
+                    rs.getString("id"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("phone")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customers;
+    }
+
+    @Override
+    public void updateCustomer(List<Customer> customers, String custId, Customer updCustomer) {
+        String sql = "UPDATE customers SET name = ?, email = ?, phone = ? WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, updCustomer.getName());
+            pstmt.setString(2, updCustomer.getEmail());
+            pstmt.setString(3, updCustomer.getPhone());
+            pstmt.setString(4, custId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteCustomer(String id) {
-        List<Customer> customers = findAllCustomers();
-        customers.removeIf(customer -> customer.getId().equals(id));
-        if (customers.isEmpty()) {
-            File file = new File(JSON_FILE_PATH);
-            file.delete();
-        } else {
-            saveAllCustomers(customers);
+        String sql = "DELETE FROM customers WHERE id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+    }
+
+    @Override
+    public void saveAllCustomers(List<Customer> customers) {
+        // This method is no longer required as individual CRUD operations are handled directly via the database.
     }
 }
