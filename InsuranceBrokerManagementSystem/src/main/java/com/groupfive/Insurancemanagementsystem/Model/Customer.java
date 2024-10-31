@@ -5,17 +5,20 @@ public class Customer {
     private String name;
     private String email;
     private String phone;
+    private String brokerEmail;  // Field to store selected broker's email
 
-    public Customer(String id, String name, String email, String phone) {
+    public Customer(String id, String name, String email, String phone, String brokerEmail) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.brokerEmail = brokerEmail;
     }
 
     public Customer() {
     }
 
+    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -48,8 +51,16 @@ public class Customer {
         this.phone = phone;
     }
 
+    public String getBrokerEmail() {
+        return brokerEmail;
+    }
+
+    public void setBrokerEmail(String brokerEmail) {
+        this.brokerEmail = brokerEmail;
+    }
+
     @Override
     public String toString() {
-        return String.format("Customer{id='%s', name='%s', email='%s', phone='%s'}", id, name, email, phone);
+        return String.format("Customer{id='%s', name='%s', email='%s', phone='%s', brokerEmail='%s'}", id, name, email, phone, brokerEmail);
     }
 }

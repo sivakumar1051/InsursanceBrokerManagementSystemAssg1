@@ -13,7 +13,7 @@ public class CustomerRepositoryImplementation implements ICustomerRepository {
 
     public CustomerRepositoryImplementation() {
         try {
-            this.connection = DatabaseUtility.getConnection(); // Get the connection from DatabaseUtility
+            this.connection = DatabaseUtility.getConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -21,12 +21,13 @@ public class CustomerRepositoryImplementation implements ICustomerRepository {
 
     @Override
     public void addCustomer(Customer customer) {
-        String sql = "INSERT INTO customers (id, name, email, phone) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO customers (id, name, email, phone, brokerEmail) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, customer.getId());
             pstmt.setString(2, customer.getName());
             pstmt.setString(3, customer.getEmail());
             pstmt.setString(4, customer.getPhone());
+            pstmt.setString(5, customer.getBrokerEmail());  // Store broker's email
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -44,13 +45,14 @@ public class CustomerRepositoryImplementation implements ICustomerRepository {
                     rs.getString("id"),
                     rs.getString("name"),
                     rs.getString("email"),
-                    rs.getString("phone")
+                    rs.getString("phone"),
+                    rs.getString("brokerEmail") 
                 );
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Return null if customer is not found
+        return null;
     }
 
     @Override
@@ -65,7 +67,8 @@ public class CustomerRepositoryImplementation implements ICustomerRepository {
                     rs.getString("id"),
                     rs.getString("name"),
                     rs.getString("email"),
-                    rs.getString("phone")
+                    rs.getString("phone"),
+                    rs.getString("broker_email")  // Get broker_email
                 ));
             }
         } catch (SQLException e) {
@@ -76,12 +79,13 @@ public class CustomerRepositoryImplementation implements ICustomerRepository {
 
     @Override
     public void updateCustomer(List<Customer> customers, String custId, Customer updCustomer) {
-        String sql = "UPDATE customers SET name = ?, email = ?, phone = ? WHERE id = ?";
+        String sql = "UPDATE customers SET name = ?, email = ?, phone = ?, brokerEmail = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, updCustomer.getName());
             pstmt.setString(2, updCustomer.getEmail());
             pstmt.setString(3, updCustomer.getPhone());
-            pstmt.setString(4, custId);
+            pstmt.setString(4, updCustomer.getBrokerEmail());  // Update broker_email
+            pstmt.setString(5, custId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -99,8 +103,9 @@ public class CustomerRepositoryImplementation implements ICustomerRepository {
         }
     }
 
-    @Override
-    public void saveAllCustomers(List<Customer> customers) {
-        // This method is no longer required as individual CRUD operations are handled directly via the database.
-    }
+	@Override
+	public void saveAllCustomers(List<Customer> customers) {
+		// TODO Auto-generated method stub
+		
+	}
 }

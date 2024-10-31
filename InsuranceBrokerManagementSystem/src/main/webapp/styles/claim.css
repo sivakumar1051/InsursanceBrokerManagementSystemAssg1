@@ -1,0 +1,127 @@
+/* General styles for the page */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+/* Header and Navigation Styles */
+header {
+    background: #35424a;
+    color: #ffffff;
+    padding: 10px 20px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* Form Styles */
+.form-section {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-section h2 {
+    color: #35424a;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #35424a;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select,
+button {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+select {
+    background-color: #ffffff;
+    transition: border-color 0.3s;
+}
+
+select:hover,
+select:focus {
+    border-color: #35424a;
+    outline: none;
+}
+
+/* Button Styles */
+button {
+    background: #35424a;
+    color: white;
+    cursor: pointer;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background 0.3s;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #4a545c;
+}
+
+/* Table Styles */
+#claimsTable table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#claimsTable th, #claimsTable td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+#claimsTable th {
+    background-color: #f2f2f2;
+}
+
+#claimsTable td {
+    text-align: center;
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #888;
+}
+
+

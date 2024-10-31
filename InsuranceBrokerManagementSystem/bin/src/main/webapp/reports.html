@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports Summary</title>
+    <link rel="stylesheet" href="styles/reports.css">
+    <script>
+        // Load Customer Report by default
+        document.addEventListener("DOMContentLoaded", () => loadCustomerReport());
+
+        // Function to load Customer Report Data
+        function loadCustomerReport() {
+            fetch("ReportingServlet", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "reportType=customer"
+            })
+            .then(response => response.json())
+            .then(data => {
+                const reportContent = document.getElementById("reportContent");
+                reportContent.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Broker Name</th>
+                                <th>Customer Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="brokerTableBody"></tbody>
+                    </table>
+                `;
+
+                const tableBody = document.getElementById("brokerTableBody");
+                data.brokers.forEach(broker => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${broker.name}</td>
+                        <td><a href="#" onclick="showCustomerDetails('${broker.email}')">${broker.customerCount}</a></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Error fetching customer report data:", error));
+        }
+
+        // Function to show customer details in a popup
+        function showCustomerDetails(brokerEmail) {
+            fetch("ReportingServlet", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `brokerEmail=${brokerEmail}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const modalContent = document.getElementById("modalContent");
+                modalContent.innerHTML = `
+                    <h2>Customers Managed by ${data.brokerName}</h2>
+                    <ul>
+                        ${data.customers.map(customer => `<li>${customer.name} - ${customer.email}</li>`).join('')}
+                    </ul>
+                `;
+                document.getElementById("modal").style.display = "block";
+            })
+            .catch(error => console.error("Error fetching customer details:", error));
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+    </script>
+</head>
+<body>
+    <h1>Reports Summary</h1>
+
+    <!-- Report Headers -->
+    <div class="report-headers">
+        <a href="#" onclick="loadCustomerReport()">Customer Report</a>
+        <a href="#" onclick="loadPoliciesReport()">Policies Report</a>
+        <a href="#" onclick="loadClaimsReport()">Claims Report</a>
+        <a href="#" onclick="loadApprovalRejectionRates()">Approval/Rejection Rates</a>
+    </div>
+
+    <!-- Report Content Section -->
+    <div id="reportContent">
+        <!-- Content will load here dynamically based on selected report -->
+    </div>
+
+    <!-- Modal Popup for Customer Details -->
+    <div id="modal" class="modal">
+        <div id="modalContent" class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+    </div>
+</body>
+</html>

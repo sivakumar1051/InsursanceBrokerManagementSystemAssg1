@@ -6,14 +6,29 @@ public class Broker {
     private String phone;
     private String password;
 
-    public Broker(String name, String email, String phone, String password) {
+    public Broker(String name, String email) {
         this.name = name;
         this.email = email;
-        this.phone = phone;
-        this.password = password;
+       
     }
+    
+    
+ 
+    
 
-    public String getName() {
+	public Broker(String name, String email, String phone, String password) {
+		super();
+		this.name = name;
+		this.email = email;
+		this.phone = phone;
+		this.password = password;
+	}
+
+
+
+
+
+	public String getName() {
         return name;
     }
 

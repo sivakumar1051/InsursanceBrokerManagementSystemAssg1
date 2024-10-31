@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims Management</title>
+    <link rel="stylesheet" href="styles/claim.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showForm('submitClaimForm')">Submit New Claim</a></li>
+                <li><a href="#" onclick="showForm('updateClaimForm')">Update Claim</a></li>
+                <li><a href="#" onclick="showForm('approveRejectClaimForm')">Approve/Reject Claim</a></li>
+                <li><a href="#" onclick="showForm('viewClaimsForm')">View Claims</a></li>
+                <li style="float:right"><a href="landingPage.html">Home</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="submitClaimForm" class="form-section">
+        <h2>Submit New Claim</h2>
+        <form action="ClaimManagementServlet" method="POST">
+            <label for="claimId">Claim ID:</label>
+            <input type="text" id="claimId" name="claimId" required>
+            <label for="policyNumber">Policy Number:</label>
+            <input type="text" id="policyNumber" name="policyNumber" required>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" name="amount" required>
+            <label for="dateOfClaim">Date of Claim:</label>
+            <input type="date" id="dateOfClaim" name="dateOfClaim" required>
+            <button type="submit">Submit Claim</button>
+        </form>
+    </div>
+
+    <div class="form-section" id="updateClaimForm" style="display: none;">
+            <h3>Update Claim</h3>
+            <form id="searchClaimForUpdateForm" class="styled-form" onsubmit="searchClaimForUpdate(event)">
+                <label for="updateClaimId">Claim ID:</label>
+                <input type="text" id="updateClaimId" name="updateClaimId" class="text-input" required>
+                <button type="submit" class="styled-button">Search</button>
+            </form>
+            <div id="updateResponseMessage"></div>
+            <div id="updateFormContainer" style="display: none;">
+                <form id="updateClaimFormDetails" class="styled-form" onsubmit="updateClaimDetails(event)">
+                    <label for="updatePolicyNumber">Policy Number:</label>
+                    <input type="text" id="updatePolicyNumber" name="policyNumber" class="text-input" readonly>
+                    
+                    <label for="updateDescription">Description:</label>
+                    <textarea id="updateDescription" name="description" rows="4" class="text-input" required></textarea>
+                    
+                    <label for="updateAmount">Amount:</label>
+                    <input type="number" id="updateAmount" name="amount" class="text-input" required>
+                    
+                    <label for="updateStatus">Status:</label>
+                    <input type="text" id="updateStatus" name="status" class="text-input" readonly>
+                    
+                    <button type="submit" class="styled-button">Update Claim</button>
+                </form>
+            </div>
+        </div>
+
+   <div id="approveRejectClaimForm" class="form-section" style="display:none;">
+    <h2>Approve/Reject Claim</h2>
+    <form id="statusUpdateForm" onsubmit="updateClaimStatus(event)">
+        <label for="claimIdStatus">Claim ID:</label>
+        <input type="text" id="claimIdStatus" name="claimIdStatus" required>
+        
+        <label for="statusSelect">Status:</label>
+        <select id="statusSelect" name="status" required>
+            <option value="APPROVE">Approve</option>
+            <option value="REJECT">Reject</option>
+        </select>
+        
+        <button type="submit">Update Status</button>
+    </form>
+    <div id="statusUpdateMessage"></div>
+</div>
+
+    <div id="viewClaimsForm" class="form-section" style="display:none;">
+        <h2>View Claims</h2>
+        <div id="claimsTable">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Claim ID</th>
+                        <th>Policy Number</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- This will be populated by the ViewClaimsServlet -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+       
+        async function searchClaim(event) {
+            event.preventDefault();
+            const searchId = document.getElementById('searchClaimId').value;
+            const claimDetailsDiv = document.getElementById('claimDetails');
+            const responseMessage = document.getElementById('responseMessage');
+
+            try {
+                const response = await fetch('ClaimManagementServlet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'searchId=' + encodeURIComponent(searchId)
+                });
+
+                const data = await response.json();
+
+                if (data.claim) {
+                    const claim = data.claim;
+                    claimDetailsDiv.innerHTML = `
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Claim ID</th>
+                                    <th>Policy Number</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${claim.id}</td>
+                                    <td>${claim.policyNumber}</td>
+                                    <td>${claim.description}</td>
+                                    <td>${claim.amount}</td>
+                                    <td>${claim.status}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                    responseMessage.innerText = '';
+                } else {
+                    claimDetailsDiv.innerHTML = '';
+                    responseMessage.innerText = "Claim doesn't exist.";
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                claimDetailsDiv.innerHTML = '';
+                responseMessage.innerText = "Error retrieving claim details.";
+            }
+        }
+
+        function searchClaimForUpdate(event) {
+            event.preventDefault();
+            const updateClaimId = document.getElementById('updateClaimId').value;
+            const updateResponseMessage = document.getElementById('updateResponseMessage');
+            const updateFormContainer = document.getElementById('updateFormContainer');
+
+            fetch('ClaimManagementServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'searchId=' + encodeURIComponent(updateClaimId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.claim) {
+                    const claim = data.claim;
+                    document.getElementById('updatePolicyNumber').value = claim.policyNumber;
+                    document.getElementById('updateDescription').value = claim.description;
+                    document.getElementById('updateAmount').value = claim.amount;
+                    document.getElementById('updateStatus').value = claim.status;
+                    updateFormContainer.style.display = 'block';
+                    updateResponseMessage.innerText = '';
+                } else {
+                    updateFormContainer.style.display = 'none';
+                    updateResponseMessage.innerText = "Claim doesn't exist.";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                updateResponseMessage.innerText = "Error retrieving claim details.";
+            });
+        }
+
+        function updateClaimDetails(event) {
+            event.preventDefault();
+            const claimId = document.getElementById('updateClaimId').value;
+            const description = document.getElementById('updateDescription').value;
+            const amount = document.getElementById('updateAmount').value;
+
+            fetch('ClaimManagementServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `updateClaimId=${encodeURIComponent(claimId)}&description=${encodeURIComponent(description)}&amount=${encodeURIComponent(amount)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert(data.message);
+                    document.getElementById('updateFormContainer').style.display = 'none';
+                    document.getElementById('updateClaimId').value = '';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error updating claim details.");
+            });
+        }
+        function viewClaims() {
+            fetch('ClaimManagementServlet', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(claims => {
+                const table = document.getElementById('claimsTable');
+                table.innerHTML = `
+                    <table border="1" class="claims-table">
+                        <thead>
+                            <tr>
+                                <th>Claim ID</th>
+                                <th>Policy Number</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${claims.map(claim => `
+                                <tr>
+                                    <td>${claim.id}</td>
+                                    <td>${claim.policyNumber}</td>
+                                    <td>${claim.description}</td>
+                                    <td>${claim.amount}</td>
+                                    <td>${claim.dateOfClaim}</td>
+                                    <td>${claim.status}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading claims. Please try again.');
+            });
+        }
+
+        function updateClaimStatus(event) {
+            event.preventDefault();
+            
+            const claimId = document.getElementById('claimIdStatus').value;
+            const status = document.getElementById('statusSelect').value;
+            const messageDiv = document.getElementById('statusUpdateMessage');
+            
+            // Create FormData object
+            const formData = new URLSearchParams();
+            formData.append('claimIdStatus', claimId);
+            formData.append('status', status);
+            
+            fetch('ClaimManagementServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                	alert(data.message);
+                    // Refresh the claims table if it's visible
+                    if (document.getElementById('viewClaimsForm').style.display !== 'none') {
+                        viewClaims();
+                    }
+                    // Reset the form
+                    document.getElementById('statusUpdateForm').reset();
+                } else {
+                    //messageDiv.innerHTML = `<p style="color: red;">Error: ${data.message}</p>`;
+                    alert(data.message);
+
+                } 
+                
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            	alert('Error updating claim status. Please try again.');
+                //messageDiv.innerHTML = '<p style="color: red;">Error updating claim status. Please try again.</p>';
+            });
+        }
+
+        function showForm(formId) {
+            // Hide all forms first
+            document.querySelectorAll('.form-section').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            // Show the selected form
+            const selectedForm = document.getElementById(formId);
+            selectedForm.style.display = 'block';
+            
+            // If viewing claims, load the data
+            if (formId === 'viewClaimsForm') {
+                viewClaims();
+            }
+           
+        }
+
+        
+        
+    </script>
+</body>
+</html>
