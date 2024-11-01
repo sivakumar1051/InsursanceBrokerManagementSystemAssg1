@@ -153,19 +153,14 @@ public class PolicyRepositoryImplementation implements IPolicyRepository {
             .collect(Collectors.toList());
     }
 
-    @Override
-    public boolean assignPolicyToCustomer(String customerName, String policyName) {
-        // Placeholder for assignPolicyToCustomer logic
-        return false;
-    }
 
     // Assign a policy to a customer
     public boolean assignPolicy(String policyNumber, String customerId) {
         String sql = "INSERT INTO customer_policies (customer_id, policy_number) VALUES (?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, customerId);
-            pstmt.setString(2, policyNumber);
+            pstmt.setString(1, policyNumber);
+            pstmt.setString(2, customerId);
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {

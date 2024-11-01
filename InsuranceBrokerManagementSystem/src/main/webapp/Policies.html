@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Policy Management</title>
     <link rel="stylesheet" href="styles/Policies.css">
-    <div class="content">
-    </div>
     <script>
         function showForm(formType) {
             const forms = document.querySelectorAll('.form-container');
@@ -43,8 +41,8 @@
                     policyDropdown.innerHTML = '<option value="">Select Policy</option>';
                     data.forEach(policyNumber => {
                         const option = document.createElement('option');
-                        option.value = policyNumber; // Directly using policy number
-                        option.textContent = policyNumber; // Displaying policy number as text
+                        option.value = policyNumber;
+                        option.textContent = policyNumber;
                         policyDropdown.appendChild(option);
                     });
                 })
@@ -57,7 +55,7 @@
         };
         
         document.addEventListener('DOMContentLoaded', () => {
-            viewAllPolicies('policyTableDeleteBody'); // Call after DOM is loaded
+            viewAllPolicies('policyTableDeleteBody');
         });
 
         function addPolicy() {
@@ -90,7 +88,7 @@
             fetch(`PolicyManagementServlet?action=search&query=${searchId}`)
                 .then(response => response.json())
                 .then(data => {
-                    clearTable(tableBodyId); // Clear existing data to avoid repetition
+                    clearTable(tableBodyId);
                     data.forEach(policy => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
@@ -110,40 +108,6 @@
                 .catch(error => console.error('Error searching policy:', error));
         }
 
-        function searchPolicyForDelete(tableBodyId, inputId) {
-            const searchId = document.getElementById(inputId).value;
-
-            fetch(`PolicyManagementServlet?action=search&query=${searchId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const tableBody = document.getElementById(tableBodyId);
-                    tableBody.innerHTML = ''; // Clear existing data to avoid repetition
-
-                    if (data.length > 0) {
-                        data.forEach(policy => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${policy.policyNumber}</td>
-                                <td>${policy.insuredName}</td>
-                                <td>${policy.startDate}</td>
-                                <td>${policy.coverageAmount}</td>
-                                <td>${policy.premiumAmount}</td>
-                                <td><button onclick="deleteSinglePolicy('${policy.policyNumber}')">Delete</button></td>
-                            `;
-                            tableBody.appendChild(row);
-                        });
-                        tableBody.parentElement.style.display = 'table'; // Show the table
-                    } else {
-                        tableBody.parentElement.style.display = 'none'; // Hide the table if no data
-                    }
-                })
-                .catch(error => console.error('Error searching policy:', error));
-        }
-
-
-
-
-
         function deleteSinglePolicy(policyNumber) {
             fetch(`PolicyManagementServlet?action=delete&policyNumber=${policyNumber}`, {
                 method: 'DELETE'
@@ -151,32 +115,19 @@
             .then(response => {
                 if (response.ok) {
                     document.getElementById('deleteResponseMessage').innerText = 'Policy deleted successfully.';
-                    searchPolicyForDelete('policyTableDeleteBody', 'policyNumberToDelete'); // Refresh the table
+                    searchPolicyForDelete('policyTableDeleteBody', 'policyNumberToDelete');
                 } else {
                     document.getElementById('deleteResponseMessage').innerText = 'Error deleting policy.';
                 }
             })
             .catch(error => console.error('Error deleting policy:', error));
         }
-        
-        function clearTable(tableBodyId) {
-            const tableBody = document.getElementById(tableBodyId);
-            if (tableBody) {
-                tableBody.innerHTML = ''; // Clear existing data
-            } else {
-                console.error(`Table body with ID "${tableBodyId}" not found.`);
-            }
-        }
-
-
-
 
         function viewAllPolicies(viewOnly = false, tableBodyId) {
-        	
             fetch('PolicyManagementServlet?action=viewAll')
                 .then(response => response.json())
                 .then(data => {
-                    clearTable(tableBodyId); // Clear existing data to avoid repetition
+                    clearTable(tableBodyId);
                     data.forEach(policy => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
@@ -211,7 +162,6 @@
                         document.getElementById('policyTypeUpdate').value = policy.policyType;
                         document.getElementById('updateSubmitButton').disabled = false;
                         document.getElementById('popupWindow').style.display = 'block';
-                        alert("Scroll down to update details ");
                     }
                 })
                 .catch(error => console.error('Error fetching policy details for update:', error));
@@ -241,11 +191,11 @@
             .then(data => {
                 alert(data);
                 closePopup();
-                viewAllPolicies(); // Refresh the policies list after update
+                viewAllPolicies(); 
             })
             .catch(error => alert('Error updating policy: ' + error));
         }
-        
+
         function assignPolicy() {
             const selectedCustomer = document.getElementById('customerDropdown').value;
             const selectedPolicy = document.getElementById('policyDropdown').value;
@@ -267,8 +217,7 @@
             })
             .then(response => response.ok ? response.text() : Promise.reject(response.statusText))
             .then(data => {
-                alert(data); // Alert the response message from the server
-                // Optionally, you can reset the dropdowns or update the UI as needed
+                alert(data);
                 document.getElementById('customerDropdown').value = '';
                 document.getElementById('policyDropdown').value = '';
             })
@@ -290,7 +239,6 @@
         </ul>
     </nav>
 </header>
-
 
 <!-- Add Policy Form -->
 <div class="form-container" id="addPolicyForm" style="display: none;">
@@ -338,7 +286,7 @@
 </div>
 
 <!-- Popup for updating policy -->
-<div id="popupWindow" style="display: none;">
+<div id="popupWindow" class="popup" style="display: none;">
     <form onsubmit="updatePolicy(); return false;">
         <h2>Update Policy</h2>
         <label for="policyNumberUpdate">Policy Number:</label>
@@ -396,19 +344,13 @@
                 <th>Start Date</th>
                 <th>Coverage Amount</th>
                 <th>Premium Amount</th>
-                <th>Action</th> <!-- This column indicates the action -->
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="policyTableDeleteBody"></tbody>
     </table>
     <p id="deleteResponseMessage"></p>
 </div>
-
-
-
-
-
-
 
 <!-- Assign Policy Form -->
 <div class="form-container" id="assignPolicyForm" style="display: none;">
@@ -422,4 +364,3 @@
 
 </body>
 </html>
-       

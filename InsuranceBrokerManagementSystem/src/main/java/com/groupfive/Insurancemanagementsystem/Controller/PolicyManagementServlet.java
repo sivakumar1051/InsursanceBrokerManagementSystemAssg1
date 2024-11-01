@@ -51,7 +51,7 @@ public class PolicyManagementServlet extends HttpServlet {
                 String policyName = jsonObject.getString("policyName");
 
                 // Assign policy to customer
-                boolean assigned = policyRepository.assignPolicyToCustomer(customerName, policyName);
+                boolean assigned = policyRepository.assignPolicy(customerName, policyName);
                 if (assigned) {
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.getWriter().write("Policy assigned successfully!");

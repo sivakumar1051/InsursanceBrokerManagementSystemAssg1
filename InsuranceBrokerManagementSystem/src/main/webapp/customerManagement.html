@@ -10,12 +10,12 @@
             const forms = document.querySelectorAll('.form-container');
             forms.forEach(form => form.style.display = 'none');
             document.getElementById(formType).style.display = 'block';
-            document.getElementById('formMessage').innerText = '';  
+            document.getElementById('formMessage').innerText = '';
         }
 
         window.onload = function() {
-            fetchBrokers();  
-            showForm('addCustomerForm');  
+            fetchBrokers();
+            showForm('addCustomerForm');
         };
 
         async function fetchBrokers() {
@@ -25,9 +25,6 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: 'action=fetchBrokers'
                 });
-                if (!response.ok) {
-                    throw new Error("Failed to fetch brokers");
-                }
                 const brokers = await response.json();
                 const select = document.getElementById('brokerEmail');
                 brokers.forEach(broker => {
@@ -55,18 +52,11 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `action=addCustomer&id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&brokerEmail=${encodeURIComponent(brokerEmail)}`
                 });
-
                 const result = await response.json();
-                
-                if (result.status === "success") {
-                    document.getElementById('formMessage').innerText = "Customer added successfully!";
-                    document.getElementById('formMessage').style.color = "green";
-                    document.getElementById("addCustomerForm").reset();
-                } else {
-                    document.getElementById('formMessage').innerText = result.message;
-                    document.getElementById('formMessage').style.color = "red";
-                }
+                document.getElementById('formMessage').innerText = result.message;
+                document.getElementById('formMessage').style.color = result.status === "success" ? "green" : "red";
             } catch (error) {
+                document.getElementById('formMessage').innerText = "Error adding customer.";
                 document.getElementById('formMessage').style.color = "red";
             }
         }
@@ -83,38 +73,16 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `action=viewCustomer&searchId=${encodeURIComponent(searchId)}`
                 });
-
                 const data = await response.json();
 
                 if (data.customer) {
-                    const customer = data.customer;
-                    customerDetailsDiv.innerHTML = `
-                        <table class="styled-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>${customer.id}</td>
-                                    <td>${customer.name}</td>
-                                    <td>${customer.email}</td>
-                                    <td>${customer.phone}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
+                    customerDetailsDiv.innerHTML = `<table class="styled-table"><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th></tr><tr><td>${data.customer.id}</td><td>${data.customer.name}</td><td>${data.customer.email}</td><td>${data.customer.phone}</td></tr></table>`;
                     responseMessage.innerText = '';
                 } else {
                     customerDetailsDiv.innerHTML = '';
                     responseMessage.innerText = "Customer doesn't exist.";
                 }
             } catch (error) {
-                console.error('Error:', error);
                 customerDetailsDiv.innerHTML = '';
                 responseMessage.innerText = "Error retrieving customer details.";
             }
@@ -124,14 +92,13 @@
             event.preventDefault();
             const updateCustomerId = document.getElementById('updateCustomerId').value;
             const updateResponseMessage = document.getElementById('updateResponseMessage');
-            
+
             try {
                 const response = await fetch('CustomerManagementServlet', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `action=viewCustomer&searchId=${encodeURIComponent(updateCustomerId)}`
                 });
-
                 const data = await response.json();
 
                 if (data.customer) {
@@ -143,7 +110,6 @@
                     updateResponseMessage.innerText = "Customer doesn't exist.";
                 }
             } catch (error) {
-                console.error('Error:', error);
                 updateResponseMessage.innerText = "Error retrieving customer details.";
             }
         }
@@ -161,14 +127,9 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `action=updateCustomer&updateCustomerId=${encodeURIComponent(updateCustomerId)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
                 });
-
                 const data = await response.json();
                 alert(data.message);
-                if (data.status === "success") {
-                    document.getElementById("updateCustomerForm").reset();
-                }
             } catch (error) {
-                console.error('Error:', error);
                 alert("Error updating customer details.");
             }
         }
@@ -183,14 +144,9 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `action=deleteCustomer&deleteCustomerId=${encodeURIComponent(deleteCustomerId)}`
                 });
-
                 const data = await response.json();
                 alert(data.message);
-                if (data.status === "success") {
-                    document.getElementById("deleteCustomerForm").reset();
-                }
             } catch (error) {
-                console.error('Error:', error);
                 alert("Error deleting customer.");
             }
         }
@@ -205,78 +161,76 @@
                 <li><a href="#" onclick="showForm('updateCustomerForm')">Update Customer</a></li>
                 <li><a href="#" onclick="showForm('deleteCustomerForm')">Delete Customer</a></li>
             </ul>
-            <div><a href="landingPage.html" class="home-button">Home</a></div>
+            <a href="landingPage.html" class="home-button">Home</a>
         </nav>
     </header>
 
-    <main style="padding-top: 80px;">
+    <main>
         <!-- Add Customer Form -->
-        <div class="form-container" id="addCustomerForm" style="display: none;">
+        <div class="form-container" id="addCustomerForm">
             <h3>Add Customer</h3>
-            <form onsubmit="submitCustomerForm(event)" class="styled-form">
+            <form onsubmit="submitCustomerForm(event)">
                 <label for="id">ID:</label>
-                <input type="text" id="id" name="id" class="text-input" required>
+                <input type="text" id="id" required>
                 <label for="name">Name:</label>
-                <input type="text" id="name" name="name" class="text-input" required>
+                <input type="text" id="name" required>
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" class="text-input" required>
+                <input type="email" id="email" required>
                 <label for="phone">Phone:</label>
-                <input type="text" id="phone" name="phone" class="text-input" required>
+                <input type="text" id="phone" required>
                 <label for="brokerEmail">Broker:</label>
-                <select id="brokerEmail" name="brokerEmail" class="text-input" required></select>
-                <button type="submit" class="styled-button">Submit</button>
+                <select id="brokerEmail" required></select>
+                <button type="submit">Submit</button>
             </form>
-            <div id="formMessage" style="color: red; margin-top: 1rem;"></div>
+            <div id="formMessage"></div>
         </div>
 
         <!-- View Customer Form -->
         <div class="form-container" id="viewCustomerForm" style="display: none;">
             <h3>View Customer</h3>
-            <form id="searchCustomerForm" class="styled-form" onsubmit="searchCustomer(event);">
+            <form onsubmit="searchCustomer(event);">
                 <label for="searchId">Customer ID:</label>
-                <input type="text" id="searchId" name="searchId" class="text-input" required>
-                <button type="submit" class="styled-button">Search</button>
+                <input type="text" id="searchId" required>
+                <button type="submit">Search</button>
             </form>
-            <div id="responseMessage" style="color: red; margin-top: 1rem;"></div>
+            <div id="responseMessage"></div>
             <div id="customerDetails"></div>
         </div>
 
         <!-- Update Customer Form -->
         <div class="form-container" id="updateCustomerForm" style="display: none;">
             <h3>Update Customer</h3>
-            <form id="populateUpdateForm" class="styled-form" onsubmit="populateUpdateForm(event);">
+            <form onsubmit="populateUpdateForm(event);">
                 <label for="updateCustomerId">Customer ID:</label>
-                <input type="text" id="updateCustomerId" name="updateCustomerId" class="text-input" required>
-                <button type="submit" class="styled-button">Search</button>
+                <input type="text" id="updateCustomerId" required>
+                <button type="submit">Search</button>
             </form>
-            <form id="updateCustomerFormDetails" class="styled-form" onsubmit="updateCustomerDetails(event);" style="margin-top: 1rem;">
+            <form onsubmit="updateCustomerDetails(event);" style="margin-top: 10px;">
                 <label for="updateName">Name:</label>
-                <input type="text" id="updateName" name="name" class="text-input" required>
+                <input type="text" id="updateName" required>
                 <label for="updateEmail">Email:</label>
-                <input type="email" id="updateEmail" name="email" class="text-input" required>
+                <input type="email" id="updateEmail" required>
                 <label for="updatePhone">Phone:</label>
-                <input type="text" id="updatePhone" name="phone" class="text-input" required>
-                <button type="submit" class="styled-button">Update</button>
+                <input type="text" id="updatePhone" required>
+                <button type="submit">Update</button>
             </form>
-            <div id="updateResponseMessage" style="color: red; margin-top: 1rem;"></div>
+            <div id="updateResponseMessage"></div>
         </div>
 
         <!-- Delete Customer Form -->
         <div class="form-container" id="deleteCustomerForm" style="display: none;">
             <h3>Delete Customer</h3>
-            <form id="deleteCustomerFormDetails" class="styled-form" onsubmit="deleteCustomer(event);">
+            <form onsubmit="deleteCustomer(event);">
                 <label for="deleteCustomerId">Customer ID:</label>
-                <input type="text" id="deleteCustomerId" name="deleteCustomerId" class="text-input" required>
-                <button type="submit" class="styled-button">Delete</button>
+                <input type="text" id="deleteCustomerId" required>
+                <button type="submit">Delete</button>
             </form>
-            <div id="deleteResponseMessage" style="color: red; margin-top: 1rem;"></div>
+            <div id="deleteResponseMessage"></div>
         </div>
     </main>
 
     <footer>
-        <div class="footer-content">
-            <p>&copy; 2024 Your Company. All rights reserved. | <a href="#">Privacy Policy</a></p>
-        </div>
+        <p>&copy; 2024 Insurance Management system. All rights reserved.</p>
     </footer>
 </body>
 </html>

@@ -68,7 +68,7 @@ public class CustomerRepositoryImplementation implements ICustomerRepository {
                     rs.getString("name"),
                     rs.getString("email"),
                     rs.getString("phone"),
-                    rs.getString("broker_email")  // Get broker_email
+                    rs.getString("brokerEmail")  // Get broker_email
                 ));
             }
         } catch (SQLException e) {

@@ -18,6 +18,6 @@ public interface IPolicyRepository {
 
 	List<String> getPolicyNames();
 
-	boolean assignPolicyToCustomer(String customerName, String policyName);
+	boolean assignPolicy(String customerName, String policyName);
 
 }
