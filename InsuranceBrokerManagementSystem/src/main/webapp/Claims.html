@@ -1,105 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claims Management</title>
-    <link rel="stylesheet" href="styles/claim.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claims Management</title>
+<link rel="stylesheet" href="styles/claim.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="#" onclick="showForm('submitClaimForm')">Submit New Claim</a></li>
-                <li><a href="#" onclick="showForm('updateClaimForm')">Update Claim</a></li>
-                <li><a href="#" onclick="showForm('approveRejectClaimForm')">Approve/Reject Claim</a></li>
-                <li><a href="#" onclick="showForm('viewClaimsForm')">View Claims</a></li>
-                <li style="float:right"><a href="landingPage.html">Home</a></li>
-            </ul>
-        </nav>
-    </header>
+	<header>
+		<nav>
+			<ul>
+				<li><a href="#" onclick="showForm('submitClaimForm')">Submit
+						New Claim</a></li>
+				<li><a href="#" onclick="showForm('updateClaimForm')">Update
+						Claim</a></li>
+				<li><a href="#" onclick="showForm('approveRejectClaimForm')">Approve/Reject
+						Claim</a></li>
+				<li><a href="#" onclick="showForm('viewClaimsForm')">View
+						Claims</a></li>
+				<li style="float: right"><a href="landingPage.html">Home</a></li>
+			</ul>
+		</nav>
+	</header>
+	
+	<footer>
+    <p>&copy; 2024 Insurance Management System. All rights reserved.</p>
+</footer>
 
-    <!-- Submit Claim Form -->
-    <div id="submitClaimForm" class="form-section">
-        <h2>Submit New Claim</h2>
-        <form action="ClaimManagementServlet" method="POST">
-            <label for="claimId">Claim ID:</label>
-            <input type="text" id="claimId" name="claimId" required>
-            <label for="policyNumber">Policy Number:</label>
-            <input type="text" id="policyNumber" name="policyNumber" required>
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" rows="4" required></textarea>
-            <label for="amount">Amount:</label>
-            <input type="number" id="amount" name="amount" required>
-            <label for="dateOfClaim">Date of Claim:</label>
-            <input type="date" id="dateOfClaim" name="dateOfClaim" required>
-            <button type="submit">Submit Claim</button>
-        </form>
-    </div>
+	<!-- Submit Claim Form -->
+	<div id="submitClaimForm" class="form-section">
+		<h2>Submit New Claim</h2>
+		<form action="ClaimManagementServlet" method="POST">
+			<label for="claimId">Claim ID:</label> <input type="text"
+				id="claimId" name="claimId" required> <label
+				for="policyNumber">Policy Number:</label> <input type="text"
+				id="policyNumber" name="policyNumber" required> <label
+				for="description">Description:</label>
+			<textarea id="description" name="description" rows="4" required></textarea>
+			<label for="amount">Amount:</label> <input type="number" id="amount"
+				name="amount" required> <label for="dateOfClaim">Date
+				of Claim:</label> <input type="date" id="dateOfClaim" name="dateOfClaim"
+				required>
+			<button type="submit">Submit Claim</button>
+		</form>
+	</div>
 
-    <!-- Update Claim Form -->
-    <div id="updateClaimForm" class="form-section" style="display: none;">
-        <h2>Update Claim</h2>
-        <form id="searchClaimForUpdateForm" onsubmit="searchClaimForUpdate(event)">
-            <label for="updateClaimId">Claim ID:</label>
-            <input type="text" id="updateClaimId" name="updateClaimId" required>
-            <button type="submit">Search</button>
-        </form>
-        <div id="updateResponseMessage"></div>
-        <div id="updateFormContainer" style="display: none;">
-            <form id="updateClaimFormDetails" onsubmit="updateClaimDetails(event)">
-                <label for="updatePolicyNumber">Policy Number:</label>
-                <input type="text" id="updatePolicyNumber" name="policyNumber" readonly>
-                <label for="updateDescription">Description:</label>
-                <textarea id="updateDescription" name="description" rows="4" required></textarea>
-                <label for="updateAmount">Amount:</label>
-                <input type="number" id="updateAmount" name="amount" required>
-                <label for="updateStatus">Status:</label>
-                <input type="text" id="updateStatus" name="status" readonly>
-                <button type="submit">Update Claim</button>
-            </form>
-        </div>
-    </div>
+	<!-- Update Claim Form -->
+	<div id="updateClaimForm" class="form-section" style="display: none;">
+		<h2>Update Claim</h2>
+		<form id="searchClaimForUpdateForm"
+			onsubmit="searchClaimForUpdate(event)">
+			<label for="updateClaimId">Claim ID:</label> <input type="text"
+				id="updateClaimId" name="updateClaimId" required>
+			<button type="submit">Search</button>
+		</form>
+		<div id="updateResponseMessage"></div>
+		<div id="updateFormContainer" style="display: none;">
+			<form id="updateClaimFormDetails"
+				onsubmit="updateClaimDetails(event)">
+				<label for="updatePolicyNumber">Policy Number:</label> <input
+					type="text" id="updatePolicyNumber" name="policyNumber" readonly>
+				<label for="updateDescription">Description:</label>
+				<textarea id="updateDescription" name="description" rows="4"
+					required></textarea>
+				<label for="updateAmount">Amount:</label> <input type="number"
+					id="updateAmount" name="amount" required> <label
+					for="updateStatus">Status:</label> <input type="text"
+					id="updateStatus" name="status" readonly>
+				<button type="submit">Update Claim</button>
+			</form>
+		</div>
+	</div>
 
-    <!-- Approve/Reject Claim Form -->
-    <div id="approveRejectClaimForm" class="form-section" style="display:none;">
-        <h2>Approve/Reject Claim</h2>
-        <form id="statusUpdateForm" onsubmit="updateClaimStatus(event)">
-            <label for="claimIdStatus">Claim ID:</label>
-            <input type="text" id="claimIdStatus" name="claimIdStatus" required>
-            <label for="statusSelect">Status:</label>
-            <select id="statusSelect" name="status" required>
-                <option value="APPROVE">Approve</option>
-                <option value="REJECT">Reject</option>
-            </select>
-            <button type="submit">Update Status</button>
-        </form>
-        <div id="statusUpdateMessage"></div>
-    </div>
+	<!-- Approve/Reject Claim Form -->
+	<div id="approveRejectClaimForm" class="form-section"
+		style="display: none;">
+		<h2>Approve/Reject Claim</h2>
+		<form id="statusUpdateForm" onsubmit="updateClaimStatus(event)">
+			<label for="claimIdStatus">Claim ID:</label> <input type="text"
+				id="claimIdStatus" name="claimIdStatus" required> <label
+				for="statusSelect">Status:</label> <select id="statusSelect"
+				name="status" required>
+				<option value="APPROVE">Approve</option>
+				<option value="REJECT">Reject</option>
+			</select>
+			<button type="submit">Update Status</button>
+		</form>
+		<div id="statusUpdateMessage"></div>
+	</div>
 
-    <!-- View Claims Form -->
-    <div id="viewClaimsForm" class="form-section" style="display:none;">
-        <h2>View Claims</h2>
-        <div id="claimsTable">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Claim ID</th>
-                        <th>Policy Number</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Populated by the ViewClaimsServlet -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+	<!-- View Claims Form -->
+	<div id="viewClaimsForm" class="form-section" style="display: none;">
+		<h2>View Claims</h2>
+		<div id="claimsTable">
+			<table>
+				<thead>
+					<tr>
+						<th>Claim ID</th>
+						<th>Policy Number</th>
+						<th>Description</th>
+						<th>Amount</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- Populated by the ViewClaimsServlet -->
+				</tbody>
+			</table>
+		</div>
+	</div>
 
-    <!-- JavaScript for handling form toggling and CRUD operations -->
-    <script>
+	<!-- JavaScript for handling form toggling and CRUD operations -->
+	<script>
         function showForm(formId) {
             document.querySelectorAll('.form-section').forEach(form => form.style.display = 'none');
             document.getElementById(formId).style.display = 'block';
@@ -213,5 +225,6 @@
             }
         }
     </script>
+
 </body>
 </html>

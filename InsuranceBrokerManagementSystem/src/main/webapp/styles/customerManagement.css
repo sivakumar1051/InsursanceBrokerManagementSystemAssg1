@@ -20,14 +20,15 @@ header {
 
 .navbar {
     display: flex;
-    justify-content: flex-start; /* Align headers to the left */
-    gap: 20px;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 0 20px; /* Add padding for better spacing */
 }
 
 .nav-links {
     list-style: none;
     display: flex;
-    gap: 15px;
+    gap: 15px; /* Increased gap between links */
 }
 
 .nav-links li a {
@@ -46,7 +47,8 @@ header {
     font-size: 16px;
     text-decoration: none;
     font-weight: bold;
-    margin-left: auto; /* Pushes the Home button to the far right */
+    padding: 5px 10px;
+    margin-left: auto; /* Pushes the home button to the far right */
 }
 
 .home-button:hover {
@@ -58,7 +60,7 @@ header {
     background-color: white;
     padding: 20px;
     margin: 20px auto;
-    width: 80%; /* Reduced form size */
+    width: 80%; 
     max-width: 600px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -176,7 +178,7 @@ button:hover {
 
 /* Footer Styling */
 footer {
-    background-color: #333;
+    background-color: #4CAF50;
     color: white;
     padding: 10px 0;
     text-align: center;

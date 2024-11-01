@@ -9,7 +9,7 @@ body {
 /* Header and Navigation */
 header {
     background-color: #4CAF50;
-    padding: 15px 20px;
+    padding: 20px 20px;
     color: white;
 }
 
@@ -125,12 +125,15 @@ button:hover {
     text-align: center;
 }
 
-/* Footer Styling */
 footer {
-    text-align: center;
-    margin-top: 20px;
-    color: #888;
-    padding: 10px;
-    background-color: #333;
+    background-color: #4CAF50;
     color: white;
+    padding: 8px;
+    text-align: center;
+    position: fixed; /* Fixed position to stick to the bottom */
+    bottom: 0; /* Align to the bottom of the viewport */
+    width: 100%;
+    font-size: 14px;
 }
+
+
