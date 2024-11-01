@@ -5,320 +5,320 @@
 <title>Insurance Broker Management Report</title>
 <link rel="stylesheet" href="styles/reports.css">
 <script>
-        const basePath = `${window.location.origin}/InsuranceBrokerManagementSystem`;
+    const basePath = `${window.location.origin}/InsuranceBrokerManagementSystem`;
 
-        // Function to hide all content sections and clear previous data
-        function hideAllSections() {
-            document.getElementById('brokerPopup').style.display = 'none';
-            document.getElementById('claimsContainer').style.display = 'none';
-            document.getElementById('claimsPopup').style.display = 'none';
-            document.getElementById('policiesContainer').style.display = 'none';
-            document.getElementById('policiesPopup').style.display = 'none';
-            document.getElementById('approvalRejectionContainer').style.display = 'none';
-            document.getElementById('approvedPopup').style.display = 'none';
-            document.getElementById('rejectedPopup').style.display = 'none';
+    // Function to hide all content sections and clear previous data
+    function hideAllSections() {
+        document.getElementById('brokerPopup').style.display = 'none';
+        document.getElementById('claimsContainer').style.display = 'none';
+        document.getElementById('claimsPopup').style.display = 'none';
+        document.getElementById('policiesContainer').style.display = 'none';
+        document.getElementById('policiesPopup').style.display = 'none';
+        document.getElementById('approvalRejectionContainer').style.display = 'none';
+        document.getElementById('approvedPopup').style.display = 'none';
+        document.getElementById('rejectedPopup').style.display = 'none';
 
-            // Clear data from tables
-            document.getElementById('brokerCustomerTable').innerHTML = '';
-            document.getElementById('customerPopupContent').innerHTML = '';
-            document.getElementById('claimsPopupContent').innerHTML = '';
-            document.getElementById('policiesPopupContent').innerHTML = '';
-            document.getElementById('approvedPopupContent').innerHTML = '';
-            document.getElementById('rejectedPopupContent').innerHTML = '';
-        }
-
-        // Load Customer Report
-        async function loadCustomerReport() {
-            hideAllSections();
-            try {
-                const response = await fetch(`${basePath}/reporting`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ 'action': 'customerReport' })
-                });
-                const data = await response.json();
-                const brokersTable = document.getElementById('brokerCustomerTable');
-                brokersTable.innerHTML = "<tr><th>Broker Name</th><th>Customer Count</th></tr>";
-                data.brokers.forEach(broker => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td>${broker.brokerName}</td><td onclick="showCustomerDetails('${broker.brokerEmail}')">${broker.customerCount}</td>`;
-                    brokersTable.appendChild(row);
-                });
-                document.getElementById('brokerPopup').style.display = 'block';
-            } catch (error) {
-                console.error("Error loading customer report:", error);
-            }
-        }
-
-        // Show Customer Details for a selected broker
-        async function showCustomerDetails(brokerEmail) {
-            hideAllSections();
-            try {
-                const response = await fetch(`${basePath}/reporting`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ 'action': 'customerDetails', 'brokerEmail': brokerEmail })
-                });
-                const data = await response.json();
-                const popupContent = document.getElementById('customerPopupContent');
-                popupContent.innerHTML = "<tr><th>Customer Name</th><th>Contact Details</th></tr>";
-                data.customers.forEach(customer => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td>${customer.customerName}</td><td>${customer.contactDetails}</td>`;
-                    popupContent.appendChild(row);
-                });
-                document.getElementById('customerPopup').style.display = 'block';
-            } catch (error) {
-                console.error("Error loading customer details:", error);
-            }
-        }
-
-        // Load Claims Report
-        async function loadClaimsReport() {
-            hideAllSections();
-            try {
-                const response = await fetch(`${basePath}/reporting`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ 'action': 'claimsReport' })
-                });
-                const data = await response.json();
-                const processedClaims = data.claimsCount.processedClaims;
-                const totalClaims = data.claimsCount.totalClaims;
-                const claimsBar = document.getElementById('claimsProgressBar');
-                claimsBar.style.width = `${(processedClaims / totalClaims) * 100}%`;
-                claimsBar.innerText = `${processedClaims} of ${totalClaims} processed`;
-                document.getElementById('claimsContainer').style.display = 'block';
-            } catch (error) {
-                console.error("Error loading claims report:", error);
-            }
-        }
-
-        // Show details of all claims processed
-        async function showClaimsDetails() {
-            hideAllSections();
-            try {
-                const response = await fetch(`${basePath}/reporting`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ 'action': 'claimsDetails' })
-                });
-                const data = await response.json();
-                const claimsContent = document.getElementById('claimsPopupContent');
-                claimsContent.innerHTML = "<tr><th>Policy Number</th><th>Description</th><th>Amount</th></tr>";
-                data.claimsDetails.forEach(claim => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td>${claim.policyNumber}</td><td>${claim.description}</td><td>${claim.amount}</td>`;
-                    claimsContent.appendChild(row);
-                });
-                document.getElementById('claimsPopup').style.display = 'block';
-            } catch (error) {
-                console.error("Error loading claims details:", error);
-            }
-        }
-
-        // Load Policies Report
-        async function loadPoliciesReport() {
-            hideAllSections();
-            try {
-                const response = await fetch(`${basePath}/reporting`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ 'action': 'policiesReport' })
-                });
-                const data = await response.json();
-                const usedPolicies = data.policiesCount.usedPolicies;
-                const totalPolicies = data.policiesCount.totalPolicies;
-                const policiesBar = document.getElementById('policiesProgressBar');
-                policiesBar.style.width = `${(usedPolicies / totalPolicies) * 100}%`;
-                policiesBar.innerText = `${usedPolicies} of ${totalPolicies} used`;
-                document.getElementById('policiesContainer').style.display = 'block';
-            } catch (error) {
-                console.error("Error loading policies report:", error);
-            }
-        }
-
-        // Show details of all used policies
-        async function showPoliciesDetails() {
-            hideAllSections();
-            try {
-                const response = await fetch(`${basePath}/reporting`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ 'action': 'policiesDetails' })
-                });
-                const data = await response.json();
-                const policiesContent = document.getElementById('policiesPopupContent');
-                policiesContent.innerHTML = "<tr><th>Policy Name</th><th>Customer Name</th></tr>";
-                data.policiesDetails.forEach(policy => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td>${policy.policyName}</td><td>${policy.customerName}</td>`;
-                    policiesContent.appendChild(row);
-                });
-                document.getElementById('policiesPopup').style.display = 'block';
-            } catch (error) {
-                console.error("Error loading policies details:", error);
-            }
-        }
-
-        // Load Approval and Rejection Rates
-async function loadApprovalRejectionRates() {
-    hideAllSections();
-    try {
-        const response = await fetch(`${basePath}/reporting`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ 'action': 'approvalRejectionRates' })
-        });
-        const data = await response.json();
-
-        const approvedClaims = data.approvalRejection.approvedClaims;
-        const rejectedClaims = data.approvalRejection.rejectedClaims;
-        const totalClaims = data.approvalRejection.totalClaims;
-
-        const approvalPercentage = ((approvedClaims / totalClaims) * 100).toFixed(2);
-        const rejectionPercentage = ((rejectedClaims / totalClaims) * 100).toFixed(2);
-
-        const approvalBar = document.getElementById('approvalProgressBar');
-        approvalBar.style.width = `${approvalPercentage}%`;
-        approvalBar.innerText = `${approvedClaims} of ${totalClaims} approved (${approvalPercentage}%)`;
-
-        const rejectionBar = document.getElementById('rejectionProgressBar');
-        rejectionBar.style.width = `${rejectionPercentage}%`;
-        rejectionBar.innerText = `${rejectedClaims} of ${totalClaims} rejected (${rejectionPercentage}%)`;
-
-        document.getElementById('approvalRejectionContainer').style.display = 'block';
-    } catch (error) {
-        console.error("Error loading approval/rejection rates:", error);
+        // Clear data from tables
+        document.getElementById('brokerCustomerTable').innerHTML = '';
+        document.getElementById('customerPopupContent').innerHTML = '';
+        document.getElementById('claimsPopupContent').innerHTML = '';
+        document.getElementById('policiesPopupContent').innerHTML = '';
+        document.getElementById('approvedPopupContent').innerHTML = '';
+        document.getElementById('rejectedPopupContent').innerHTML = '';
     }
-}
 
-async function showApprovedClaims() {
-    hideAllSections();
-    try {
-        const response = await fetch(`${basePath}/reporting`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ 'action': 'approvedClaimsDetails' })
-        });
-        const data = await response.json();
-        const approvedContent = document.getElementById('approvedPopupContent');
-        approvedContent.innerHTML = "<tr><th>Claim ID</th><th>Description</th></tr>";
-        data.approvedClaims.forEach(claim => {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${claim.policyNumber}</td><td>${claim.description}</td>`; // Correct reference for claim ID
-            approvedContent.appendChild(row);
-        });
-        document.getElementById('approvedPopup').style.display = 'block';
-    } catch (error) {
-        console.error("Error loading approved claims:", error);
+    // Load Customer Report
+    async function loadCustomerReport() {
+        hideAllSections();
+        try {
+            const response = await fetch(`${basePath}/reporting`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'customerReport' })
+            });
+            const data = await response.json();
+            const brokersTable = document.getElementById('brokerCustomerTable');
+            brokersTable.innerHTML = "<tr><th>Broker Name</th><th>Customer Count</th></tr>";
+            data.brokers.forEach(broker => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${broker.brokerName}</td><td onclick="showCustomerDetails('${broker.brokerEmail}')">${broker.customerCount}</td>`;
+                brokersTable.appendChild(row);
+            });
+            document.getElementById('brokerPopup').style.display = 'block';
+        } catch (error) {
+            console.error("Error loading customer report:", error);
+        }
     }
-}
 
-async function showRejectedClaims() {
-    hideAllSections();
-    try {
-        const response = await fetch(`${basePath}/reporting`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ 'action': 'rejectedClaimsDetails' })
-        });
-        const data = await response.json();
-        const rejectedContent = document.getElementById('rejectedPopupContent');
-        rejectedContent.innerHTML = "<tr><th>Claim ID</th><th>Description</th></tr>";
-        data.rejectedClaims.forEach(claim => {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${claim.policyNumber}</td><td>${claim.description}</td>`; // Correct reference for claim ID
-            rejectedContent.appendChild(row);
-        });
-        document.getElementById('rejectedPopup').style.display = 'block';
-    } catch (error) {
-        console.error("Error loading rejected claims:", error);
+    // Show Customer Details for a selected broker
+    async function showCustomerDetails(brokerEmail) {
+        hideAllSections();
+        try {
+            const response = await fetch(`${basePath}/reporting`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'customerDetails', 'brokerEmail': brokerEmail })
+            });
+            const data = await response.json();
+            const popupContent = document.getElementById('customerPopupContent');
+            popupContent.innerHTML = "<tr><th>Customer Name</th><th>Contact Details</th></tr>";
+            data.customers.forEach(customer => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${customer.customerName}</td><td>${customer.contactDetails}</td>`;
+                popupContent.appendChild(row);
+            });
+            document.getElementById('customerPopup').style.display = 'block';
+        } catch (error) {
+            console.error("Error loading customer details:", error);
+        }
     }
-}
+
+    // Load Claims Report
+    async function loadClaimsReport() {
+        hideAllSections();
+        try {
+            const response = await fetch(`${basePath}/reporting`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'claimsReport' })
+            });
+            const data = await response.json();
+            const processedClaims = data.claimsCount.processedClaims;
+            const totalClaims = data.claimsCount.totalClaims;
+            const claimsBar = document.getElementById('claimsProgressBar');
+            claimsBar.style.width = `${(processedClaims / totalClaims) * 100}%`;
+            claimsBar.innerText = `${processedClaims} of ${totalClaims} processed`;
+            document.getElementById('claimsContainer').style.display = 'block';
+        } catch (error) {
+            console.error("Error loading claims report:", error);
+        }
+    }
+
+    // Show details of all claims processed
+    async function showClaimsDetails() {
+        hideAllSections();
+        try {
+            const response = await fetch(`${basePath}/reporting`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'claimsDetails' })
+            });
+            const data = await response.json();
+            const claimsContent = document.getElementById('claimsPopupContent');
+            claimsContent.innerHTML = "<tr><th>Policy Number</th><th>Description</th><th>Amount</th></tr>";
+            data.claimsDetails.forEach(claim => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${claim.policyNumber}</td><td>${claim.description}</td><td>${claim.amount}</td>`;
+                claimsContent.appendChild(row);
+            });
+            document.getElementById('claimsPopup').style.display = 'block';
+        } catch (error) {
+            console.error("Error loading claims details:", error);
+        }
+    }
+
+    // Load Policies Report
+    async function loadPoliciesReport() {
+        hideAllSections();
+        try {
+            const response = await fetch(`${basePath}/reporting`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'policiesReport' })
+            });
+            const data = await response.json();
+            const usedPolicies = data.policiesCount.usedPolicies;
+            const totalPolicies = data.policiesCount.totalPolicies;
+            const policiesBar = document.getElementById('policiesProgressBar');
+            policiesBar.style.width = `${(usedPolicies / totalPolicies) * 100}%`;
+            policiesBar.innerText = `${usedPolicies} of ${totalPolicies} used`;
+            document.getElementById('policiesContainer').style.display = 'block';
+        } catch (error) {
+            console.error("Error loading policies report:", error);
+        }
+    }
+
+    // Show details of all used policies
+    async function showPoliciesDetails() {
+        hideAllSections();
+        try {
+            const response = await fetch(`${basePath}/reporting`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'policiesDetails' })
+            });
+            const data = await response.json();
+            const policiesContent = document.getElementById('policiesPopupContent');
+            policiesContent.innerHTML = "<tr><th>Policy Name</th><th>Customer Name</th></tr>";
+            data.policiesDetails.forEach(policy => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${policy.policyName}</td><td>${policy.customerName}</td>`;
+                policiesContent.appendChild(row);
+            });
+            document.getElementById('policiesPopup').style.display = 'block';
+        } catch (error) {
+            console.error("Error loading policies details:", error);
+        }
+    }
+
+    // Load Approval and Rejection Rates
+    async function loadApprovalRejectionRates() {
+        hideAllSections();
+        try {
+            const response = await fetch(`${basePath}/reporting`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'approvalRejectionRates' })
+            });
+            const data = await response.json();
+
+            const approvedClaims = data.approvalRejection.approvedClaims;
+            const rejectedClaims = data.approvalRejection.rejectedClaims;
+            const totalClaims = data.approvalRejection.totalClaims;
+
+            const approvalPercentage = ((approvedClaims / totalClaims) * 100).toFixed(2);
+            const rejectionPercentage = ((rejectedClaims / totalClaims) * 100).toFixed(2);
+
+            const approvalBar = document.getElementById('approvalProgressBar');
+            approvalBar.style.width = `${approvalPercentage}%`;
+            approvalBar.innerText = `${approvedClaims} of ${totalClaims} approved (${approvalPercentage}%)`;
+
+            const rejectionBar = document.getElementById('rejectionProgressBar');
+            rejectionBar.style.width = `${rejectionPercentage}%`;
+            rejectionBar.innerText = `${rejectedClaims} of ${totalClaims} rejected (${rejectionPercentage}%)`;
+
+            document.getElementById('approvalRejectionContainer').style.display = 'block';
+        } catch (error) {
+            console.error("Error loading approval/rejection rates:", error);
+        }
+    }
+
+    async function showApprovedClaims() {
+        hideAllSections();
+        try {
+            const response = await fetch(`${basePath}/reporting`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'approvedClaimsDetails' })
+            });
+            const data = await response.json();
+            const approvedContent = document.getElementById('approvedPopupContent');
+            approvedContent.innerHTML = "<tr><th>Claim ID</th><th>Description</th></tr>";
+            data.approvedClaims.forEach(claim => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${claim.policyNumber}</td><td>${claim.description}</td>`;
+                approvedContent.appendChild(row);
+            });
+            document.getElementById('approvedPopup').style.display = 'block';
+        } catch (error) {
+            console.error("Error loading approved claims:", error);
+        }
+    }
+
+    async function showRejectedClaims() {
+        hideAllSections();
+        try {
+            const response = await fetch(`${basePath}/reporting`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'rejectedClaimsDetails' })
+            });
+            const data = await response.json();
+            const rejectedContent = document.getElementById('rejectedPopupContent');
+            rejectedContent.innerHTML = "<tr><th>Claim ID</th><th>Description</th></tr>";
+            data.rejectedClaims.forEach(claim => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${claim.policyNumber}</td><td>${claim.description}</td>`;
+                rejectedContent.appendChild(row);
+            });
+            document.getElementById('rejectedPopup').style.display = 'block';
+        } catch (error) {
+            console.error("Error loading rejected claims:", error);
+        }
+    }
 </script>
 </head>
 <body>
-	<header>
-		<h1>Insurance Management System - Reports</h1>
-		<nav>
-			<a href="/InsuranceBrokerManagementSystem/home">Home</a>
-		</nav>
-	</header>
+    <header>
+        <h1>Insurance Management System - Reports</h1>
+        <nav>
+            <a href="landingPage.html">Home</a>
+        </nav>
+    </header>
 
-	<main>
-		<section class="report-header">
-			<button onclick="loadCustomerReport()">Customer Report</button>
-			<button onclick="loadClaimsReport()">Claims Processed</button>
-			<button onclick="loadPoliciesReport()">Policies Processed</button>
-			<button onclick="loadApprovalRejectionRates()">Approval/Rejection Rates</button>
-		</section>
+    <main>
+        <section class="report-header">
+            <button onclick="loadCustomerReport()">Customer Report</button>
+            <button onclick="loadClaimsReport()">Claims Processed</button>
+            <button onclick="loadPoliciesReport()">Policies Processed</button>
+            <button onclick="loadApprovalRejectionRates()">Approval/Rejection Rates</button>
+        </section>
 
-		<section class="report-content">
-			<div id="brokerPopup" class="popup">
-				<h2>Brokers and Customer Count</h2>
-				<table id="brokerCustomerTable" class="styled-table"></table>
-				<button onclick="document.getElementById('brokerPopup').style.display='none'">Close</button>
-			</div>
+        <section class="report-content">
+            <div id="brokerPopup" class="popup">
+                <h2>Brokers and Customer Count</h2>
+                <table id="brokerCustomerTable" class="styled-table"></table>
+                <button class="close-button" onclick="document.getElementById('brokerPopup').style.display='none'">Close</button>
+            </div>
 
-			<div id="customerPopup" class="popup">
-				<h2>Customer Details</h2>
-				<table id="customerPopupContent" class="styled-table"></table>
-				<button onclick="document.getElementById('customerPopup').style.display='none'">Close</button>
-			</div>
+            <div id="customerPopup" class="popup">
+                <h2>Customer Details</h2>
+                <table id="customerPopupContent" class="styled-table"></table>
+                <button class="close-button" onclick="document.getElementById('customerPopup').style.display='none'">Close</button>
+            </div>
 
-			<div id="claimsContainer" style="display: none;">
-				<h2>Claims Processed</h2>
-				<div class="progress-bar" onclick="showClaimsDetails()">
-					<div id="claimsProgressBar" class="bar"></div>
-				</div>
-			</div>
+            <div id="claimsContainer" style="display: none;">
+                <h2>Claims Processed</h2>
+                <div class="progress-bar" onclick="showClaimsDetails()">
+                    <div id="claimsProgressBar" class="bar"></div>
+                </div>
+            </div>
 
-			<div id="claimsPopup" class="popup">
-				<h2>Processed Claims Details</h2>
-				<table id="claimsPopupContent" class="styled-table"></table>
-				<button onclick="document.getElementById('claimsPopup').style.display='none'">Close</button>
-			</div>
+            <div id="claimsPopup" class="popup">
+                <h2>Processed Claims Details</h2>
+                <table id="claimsPopupContent" class="styled-table"></table>
+                <button class="close-button" onclick="document.getElementById('claimsPopup').style.display='none'">Close</button>
+            </div>
 
-			<div id="policiesContainer" style="display: none;">
-				<h2>Policies Processed</h2>
-				<div class="progress-bar" onclick="showPoliciesDetails()">
-					<div id="policiesProgressBar" class="bar"></div>
-				</div>
-			</div>
+            <div id="policiesContainer" style="display: none;">
+                <h2>Policies Processed</h2>
+                <div class="progress-bar" onclick="showPoliciesDetails()">
+                    <div id="policiesProgressBar" class="bar"></div>
+                </div>
+            </div>
 
-			<div id="policiesPopup" class="popup">
-				<h2>Used Policies Details</h2>
-				<table id="policiesPopupContent" class="styled-table"></table>
-				<button onclick="document.getElementById('policiesPopup').style.display='none'">Close</button>
-			</div>
+            <div id="policiesPopup" class="popup">
+                <h2>Used Policies Details</h2>
+                <table id="policiesPopupContent" class="styled-table"></table>
+                <button class="close-button" onclick="document.getElementById('policiesPopup').style.display='none'">Close</button>
+            </div>
 
-			<div id="approvalRejectionContainer" style="display: none;">
-				<h2>Approval/Rejection Rates</h2>
-				<div class="progress-bar" onclick="showApprovedClaims()">
-					<div id="approvalProgressBar" class="bar"></div>
-				</div>
-				<div class="progress-bar" onclick="showRejectedClaims()">
-					<div id="rejectionProgressBar" class="bar rejection-bar"></div>
-				</div>
-			</div>
+            <div id="approvalRejectionContainer" style="display: none;">
+                <h2>Approval/Rejection Rates</h2>
+                <div class="progress-bar" onclick="showApprovedClaims()">
+                    <div id="approvalProgressBar" class="bar"></div>
+                </div>
+                <div class="progress-bar" onclick="showRejectedClaims()">
+                    <div id="rejectionProgressBar" class="bar rejection-bar"></div>
+                </div>
+            </div>
 
-			<div id="approvedPopup" class="popup">
-				<h2>Approved Claims Details</h2>
-				<table id="approvedPopupContent" class="styled-table"></table>
-				<button onclick="document.getElementById('approvedPopup').style.display='none'">Close</button>
-			</div>
+            <div id="approvedPopup" class="popup">
+                <h2>Approved Claims Details</h2>
+                <table id="approvedPopupContent" class="styled-table"></table>
+                <button class="close-button" onclick="document.getElementById('approvedPopup').style.display='none'">Close</button>
+            </div>
 
-			<div id="rejectedPopup" class="popup">
-				<h2>Rejected Claims Details</h2>
-				<table id="rejectedPopupContent" class="styled-table"></table>
-				<button onclick="document.getElementById('rejectedPopup').style.display='none'">Close</button>
-			</div>
-		</section>
-	</main>
+            <div id="rejectedPopup" class="popup">
+                <h2>Rejected Claims Details</h2>
+                <table id="rejectedPopupContent" class="styled-table"></table>
+                <button class="close-button" onclick="document.getElementById('rejectedPopup').style.display='none'">Close</button>
+            </div>
+        </section>
+    </main>
 
-	<footer>
-		<p>© 2023 Insurance Broker Management System</p>
-	</footer>
+    <footer>
+        <p>© 2023 Insurance Broker Management System</p>
+    </footer>
 </body>
 </html>

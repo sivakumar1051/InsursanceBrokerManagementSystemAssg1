@@ -12,7 +12,6 @@ import java.io.IOException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-@WebServlet("/reporting")
 public class ReportingServlet extends HttpServlet {
 
     private ReportsRepository reportsRepository = new ReportsRepository();

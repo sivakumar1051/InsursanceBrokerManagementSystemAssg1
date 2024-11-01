@@ -86,5 +86,15 @@
     <servlet-name>UpdateClaimServlet</servlet-name>
     <url-pattern>/UpdateClaimServlet</url-pattern>
   </servlet-mapping>
+     <servlet>
+    <servlet-name>ReportingServlet</servlet-name>
+    <servlet-class>com.groupfive.Insurancemanagementsystem.Controller.ReportingServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ReportingServlet</servlet-name>
+    <url-pattern>/reporting</url-pattern>
+  </servlet-mapping>
+  
+  
 
 </web-app>
