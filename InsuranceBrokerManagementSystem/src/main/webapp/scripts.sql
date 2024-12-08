@@ -39,4 +39,22 @@ CREATE TABLE brokers (
     phone VARCHAR(20) NOT NULL,
     password VARCHAR(255) NOT NULL
 );
+ALTER TABLE customer_policies ADD COLUMN status VARCHAR(20) DEFAULT 'active';
+CREATE TABLE cancelledPolicies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(255) NOT NULL,
+    policy_name VARCHAR(255) NOT NULL,
+    reason TEXT,
+    cancellation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    
+);
+CREATE TABLE Quote (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    customerName VARCHAR(100) NOT NULL,
+    age INT NOT NULL,
+    policyType VARCHAR(50) NOT NULL,
+    coverageAmount DECIMAL(15, 2) NOT NULL,
+    termLength INT NOT NULL,
+    premium DECIMAL(15, 2) NOT NULL
+);
 
