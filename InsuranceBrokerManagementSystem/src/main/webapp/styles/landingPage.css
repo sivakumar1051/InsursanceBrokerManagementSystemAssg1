@@ -1,249 +1,253 @@
 * {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-	font-family: Arial, Helvetica, sans-serif;
-	line-height: 1.6;
-	background-color: #f5f5f5;
-	color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+    background-color: #f5f5f5;
+    color: black;
 }
 
 header {
-	position: fixed;
-	top: 0;
-	width: 100%;
-	background-color: black;
-	z-index: 1000;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: black;
+    z-index: 1000;
 }
 
 .navbar {
-	display: flex;
-	justify-content: center;
-	padding: 1rem 0;
-	position: relative;
+    display: flex;
+    justify-content: flex-start;
+    padding: 1rem; /* Adjust padding for alignment from the left */
+    position: relative;
 }
 
 .nav-links {
-	list-style: none;
-	display: flex;
-	justify-content: space-between;
-	width: 60%;
-	padding: 0;
+    list-style: none;
+    display: flex;
+    justify-content: flex-start;
+    width: auto;
+    padding: 0;
 }
 
 .nav-links li {
-	position: relative;
-	margin: 0 15px;
+    position: relative;
+    margin: 0 10px; /* Slightly increase spacing between nav items */
 }
 
 .nav-links a {
-	color: white;
-	text-decoration: none;
-	font-size: 1.2rem;
-	font-weight: bold;
-	transition: color 0.3s;
+    color: white;
+    text-decoration: none;
+    font-size: 1rem; /* Increase font size for better visibility */
+    font-weight: bold;
+    padding: 6px 12px; /* Increase padding for comfortable click area */
+    transition: color 0.3s;
 }
 
 .nav-links a:hover {
-	color: #f5f5f5;
+    color: #f5f5f5;
 }
 
 .dropdown-menu {
-	display: none;
-	position: absolute;
-	top: 100%;
-	left: 0;
-	background-color: black;
-	list-style: none;
-	padding: 10px;
-	border-radius: 4px;
-	min-width: 150px;
-	white-space: nowrap;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: black;
+    list-style: none;
+    padding: 8px;
+    border-radius: 4px;
+    min-width: 140px; /* Adjust width of dropdown */
+    white-space: nowrap;
 }
 
 .nav-links li:hover .dropdown-menu {
-	display: block;
+    display: block;
 }
 
 .dropdown-menu li {
-	margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .dropdown-menu li:last-child {
-	margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 .dropdown-menu a {
-	color: white;
-	text-decoration: none;
-	font-size: 1.0rem;
-	display: block;
-	padding: 5px 10px;
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem; /* Slightly increase dropdown font size */
+    display: block;
+    padding: 5px 8px;
 }
 
 .hero {
-	margin-top: 40px;
-	text-align: center;
+    margin-top: 60px; /* Adjusted for fixed header */
+    text-align: center;
 }
 
 .hero img {
-	width: 100%;
-	height: 500px;
-	object-fit: cover;
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
 }
 
 .hero h1 {
-	margin-top: 20px;
-	font-size: 3rem;
-	color: black;
+    margin-top: 20px;
+    font-size: 3rem;
+    color: black;
 }
 
 .hero p {
-	font-size: 1.2rem;
-	color: black;
-	margin-bottom: 40px;
+    font-size: 1.2rem;
+    color: black;
+    margin-bottom: 40px;
 }
 
 .policy-sections {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-around;
-	margin: 20px 0;
-	padding: 20px;
-	background-color: white;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: white;
 }
 
 .policy {
-	flex: 0 1 30%;
-	margin: 15px;
-	padding: 30px;
-	border-radius: 12px;
-	background: linear-gradient(135deg, #f0f0f0 0%, #ffffff 100%);
-	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-	transition: transform 0.3s, box-shadow 0.3s;
-	position: relative;
-	overflow: hidden;
+    flex: 0 1 30%;
+    margin: 15px;
+    padding: 30px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f0f0f0 0%, #ffffff 100%);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 
 .policy::before {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(255, 255, 255, 0.2);
-	transition: opacity 0.3s;
-	z-index: 1;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: opacity 0.3s;
+    z-index: 1;
 }
 
 .policy:hover::before {
-	opacity: 0.5;
+    opacity: 0.5;
 }
 
 .policy h2 {
-	font-size: 1.8rem;
-	color: #333;
-	position: relative;
-	z-index: 2;
+    font-size: 1.8rem;
+    color: #333;
+    position: relative;
+    z-index: 2;
 }
 
 .policy p {
-	font-size: 1rem;
-	color: #555;
-	position: relative;
-	z-index: 2;
+    font-size: 1rem;
+    color: #555;
+    position: relative;
+    z-index: 2;
 }
 
 section {
-	padding: 20px;
+    padding: 20px;
 }
 
 h2 {
-	margin-top: 20px;
-	font-size: 2rem;
-	text-align: center;
-	color: black;
+    margin-top: 20px;
+    font-size: 2rem;
+    text-align: center;
+    color: black;
 }
 
 p {
-	font-size: 1.2rem;
-	text-align: center;
-	margin-top: 10px;
-	color: black;
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: 10px;
+    color: black;
 }
 
 footer {
-	background-color: #1a1a1a;
-	color: white;
-	display: flex;
-	justify-content: space-between;
-	padding: 40px 20px;
-	margin-top: 20px;
+    background-color: #1a1a1a;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    padding: 40px 20px;
+    margin-top: 20px;
 }
 
 .footer-column {
-	width: 24%;
+    width: 24%;
 }
 
 .footer-column h3 {
-	margin-bottom: 15px;
-	font-size: 1rem;
+    margin-bottom: 15px;
+    font-size: 1rem;
 }
 
 .footer-column ul {
-	list-style: disc;
-	padding-left: 20px;
+    list-style: disc;
+    padding-left: 20px;
 }
 
 .footer-column ul li {
-	margin: 10px 0;
+    margin: 10px 0;
 }
 
 .footer-column ul li a {
-	color: white;
-	text-decoration: none;
+    color: white;
+    text-decoration: none;
 }
 
 /* Media Queries for Responsive Design */
 @media screen and (max-width: 768px) {
-	.navbar {
-		flex-direction: column;
-		align-items: center;
-		padding: 0.5rem 0;
-	}
-	.nav-links {
-		width: 100%;
-		flex-direction: column;
-		align-items: center;
-	}
-	.nav-links li {
-		margin: 10px 0;
-	}
-	section {
-		padding-top: 80px;
-	}
-	.footer-column {
-		width: 100%;
-		margin-bottom: 15px;
-	}
-	.policy-sections {
-		flex-direction: column;
-	}
-	.policy {
-		margin: 10px 0;
-		flex: 1;
-	}
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+    .nav-links {
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+    }
+    .nav-links li {
+        margin: 8px 0;
+    }
+    section {
+        padding-top: 80px;
+    }
+    .footer-column {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    .policy-sections {
+        flex-direction: column;
+    }
+    .policy {
+        margin: 10px 0;
+        flex: 1;
+    }
+    .nav-links a {
+        font-size: 0.9rem;
+    }
 }
 
 @media screen and (max-width: 480px) {
-	.nav-links a {
-		font-size: 0.9rem;
-	}
-	section {
-		padding-top: 80px;
-	}
+    .nav-links a {
+        font-size: 0.85rem;
+    }
+    section {
+        padding-top: 80px;
+    }
 }

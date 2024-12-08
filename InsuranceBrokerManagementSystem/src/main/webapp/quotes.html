@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insurance Broker Management - Policy Quotes</title>
+    <link rel="stylesheet" href="styles/quote.css">
+    <script>
+        const basePath = `${window.location.origin}/InsuranceBrokerManagementSystem`;
+
+        // Toggle display for the Generate Quote form
+        function toggleGenerateQuoteForm() {
+            const formSection = document.getElementById('generateQuoteFormSection');
+            formSection.style.display = formSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Handle form submission via JavaScript
+        async function submitQuoteForm(event) {
+            event.preventDefault();
+
+            const formData = new URLSearchParams();
+            formData.append("customerName", document.getElementById("customerName").value);
+            formData.append("age", document.getElementById("age").value);
+            formData.append("policyType", document.getElementById("policyType").value);
+            formData.append("coverageAmount", document.getElementById("coverageAmount").value);
+            formData.append("termLength", document.getElementById("termLength").value);
+
+            try {
+                const response = await fetch(`${basePath}/QuoteServlet`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData.toString(),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayQuoteSummary(data);
+                    enableViewQuoteButton();
+                    showSuccessAlert("Quote saved. View it by clicking 'View Quote'.");
+                } else {
+                    console.error('Server responded with a non-OK status:', response.status);
+                    alert('Error generating quote. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error submitting the form:', error);
+                alert('There was a problem submitting your request. Please try again.');
+            }
+        }
+
+        // Enable the View Quote button after form submission
+        function enableViewQuoteButton() {
+            document.getElementById('viewQuoteButton').style.display = 'inline-block';
+        }
+
+        // Display the quote summary in the modal using data from the server response
+        function displayQuoteSummary(data) {
+            document.getElementById('quoteSummary').innerHTML = `
+                <p><strong>Customer Name:</strong> ${data.customerName}</p>
+                <p><strong>Age:</strong> ${data.age}</p>
+                <p><strong>Policy Type:</strong> ${data.policyType}</p>
+                <p><strong>Coverage Amount:</strong> $${data.coverageAmount}</p>
+                <p><strong>Term Length:</strong> ${data.termLength} years</p>
+                <p><strong>Premium:</strong> $${data.premium}</p>
+            `;
+        }
+
+        // Toggle display of the quote summary modal
+        function toggleViewQuoteSummary() {
+            const modal = document.getElementById('quoteSummaryModal');
+            modal.style.display = 'block';
+        }
+
+        // Close the quote summary modal
+        function closeQuoteSummary() {
+            document.getElementById('quoteSummaryModal').style.display = 'none';
+        }
+
+        // Display success alert
+        function showSuccessAlert(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Insurance Management System - Policy Quotes</h1>
+        <nav>
+            <a href="landingPage.html">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="quote-header">
+            <button onclick="toggleGenerateQuoteForm()">Generate Quotes</button>
+        </section>
+
+        <!-- Quote Form Section (Hidden by default) -->
+        <section id="generateQuoteFormSection" class="quote-content" style="display: none;">
+            <div class="form-header">
+                <h2>Generate Quote</h2>
+                <!-- View Quote Button beside the form heading -->
+                <button id="viewQuoteButton" style="display: none;" onclick="toggleViewQuoteSummary()">View Quote</button>
+            </div>
+
+            <form id="quoteForm" onsubmit="submitQuoteForm(event)">
+                <label for="customerName">Customer Name:</label>
+                <input type="text" id="customerName" name="customerName" required>
+
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" required>
+
+                <label for="policyType">Policy Type:</label>
+                <select id="policyType" name="policyType" required>
+                    <option value="home">Home Insurance</option>
+                    <option value="travel">Travel Insurance</option>
+                    <option value="life">Life Insurance</option>
+                    <option value="pet">Pet Insurance</option>
+                    <option value="auto">Auto Insurance</option>
+                    <option value="disability">Disability Insurance</option>
+                    <option value="health">Health Insurance</option>
+                </select>
+
+                <label for="coverageAmount">Coverage Amount:</label>
+                <input type="number" id="coverageAmount" name="coverageAmount" required>
+
+                <label for="termLength">Term Length (in years):</label>
+                <input type="number" id="termLength" name="termLength" required>
+
+                <button type="submit">Submit Quote</button>
+            </form>
+        </section>
+
+        <!-- Quote Summary Modal -->
+        <div id="quoteSummaryModal" class="modal">
+            <div class="modal-content fancy-border">
+                <span class="close-button" onclick="closeQuoteSummary()">&times;</span>
+                <h2>Quote Summary</h2>
+                <div id="quoteSummary"></div>
+            </div>
+        </div>
+
+        <!-- Success Alert -->
+        <div id="successAlert" class="success-alert">Quote saved. View it by clicking 'View Quote'.</div>
+    </main>
+
+    <footer>
+        <p>© 2023 Insurance Broker Management System</p>
+    </footer>
+</body>
+</html>

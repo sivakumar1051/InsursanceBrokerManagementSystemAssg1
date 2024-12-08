@@ -23,7 +23,7 @@ public class Claim {
     private String policyNumber;
 
     @Column(name = "claim_date")
-    private LocalDate claimDate;  // Changed to LocalDate for better date handling
+    private LocalDate claimDate;  
     
     @Column(name = "policyDescription")
     private String policyDescription;

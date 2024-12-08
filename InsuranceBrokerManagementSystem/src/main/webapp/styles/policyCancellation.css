@@ -1,0 +1,172 @@
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9fb;
+    color: #333;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #4CAF50;
+    color: white;
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    margin-left: 20px;
+}
+
+main {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Form Styling */
+.cancellation-header {
+    padding: 20px;
+}
+
+.cancellation-header form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cancellation-header select, .cancellation-header button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+/* Policy Table Styling */
+.policy-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.policy-table th, .policy-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.cancel-button {
+    padding: 8px 16px;
+    background-color: #d9534f;
+    color: white;
+    border-radius: 4px;
+}
+
+/* No Active Policies Message Styling */
+.no-policies-message {
+    text-align: center;
+    color: #d9534f;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 10px;
+}
+
+/* Popup Styling */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 400px;
+    max-width: 90%;
+}
+
+.popup-content h3 {
+    margin: 0;
+    color: #4CAF50;
+    font-size: 24px;
+}
+
+.popup-content p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.popup-content label {
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 10px;
+    display: block;
+}
+
+.popup-content textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+}
+
+/* Styling for Popup Buttons */
+.popup-content .popup-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.popup-content .popup-actions button {
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.popup-content .popup-actions button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.popup-content .popup-actions button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+.popup-content .popup-actions button[type="button"] {
+    background-color: #c0c0c0;
+    color: #333;
+}
+
+.popup-content .popup-actions button[type="button"]:hover {
+    background-color: #a0a0a0;
+}
+
+/* Footer Styling */
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #4CAF50;
+    color: white;
+    width: 100%;
+    font-size: 14px;
+    margin-top: auto;
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insurance Broker Management - Claims History</title>
+    <link rel="stylesheet" href="styles/ClaimsHistory.css">
+    <script>
+        const basePath = `${window.location.origin}/InsuranceBrokerManagementSystem`;
+
+        // Fetch and display all claims data on page load
+        async function loadClaimsData() {
+            try {
+                const response = await fetch(`${basePath}/ClaimsHistoryServlet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'loadClaims' })
+                });
+
+                if (response.ok) {
+                    const claims = await response.json();
+                    displayClaimsData(claims);
+                } else {
+                    console.error("Error loading claims data:", response.status);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        // Display claims data in the table
+        function displayClaimsData(claims) {
+        	 claims.sort((a, b) => new Date(a.date) - new Date(b.date));
+            const tableBody = document.querySelector("#claimsTableSection tbody");
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            claims.forEach(claim => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${claim.policyName}</td>
+                    <td>${claim.amount}</td>
+                    <td>${claim.description}</td>
+                    <td>${claim.date}</td>
+                    <td>${claim.status}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Apply filters and fetch filtered claims data
+        async function applyFilters() {
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+            const status = document.getElementById("status").value;
+
+            try {
+                const response = await fetch(`${basePath}/ClaimsHistoryServlet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'filterClaims',
+                        startDate: startDate,
+                        endDate: endDate,
+                        status: status
+                    })
+                });
+
+                if (response.ok) {
+                    const claims = await response.json();
+                    displayClaimsData(claims); // Display filtered data
+                } else {
+                    console.error("Error filtering claims data:", response.status);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        window.onload = loadClaimsData; // Load claims data on page load
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Insurance Management System - Claims History</h1>
+        <nav>
+            <a href="landingPage.html">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="claims-header">
+            <h2>Claims History</h2>
+            <div class="filters">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="startDate">
+                
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="endDate">
+                
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="all">All</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+
+                <button onclick="applyFilters()">Apply Filters</button>
+            </div>
+        </section>
+
+        <!-- Claims Table Section -->
+        <section id="claimsTableSection" class="claims-content">
+            <table class="claims-table">
+                <thead>
+                    <tr>
+                        <th>Policy Name</th>
+                        <th>Amount</th>
+                        <th>Claim Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically populated -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2023 Insurance Broker Management System</p>
+    </footer>
+</body>
+</html>

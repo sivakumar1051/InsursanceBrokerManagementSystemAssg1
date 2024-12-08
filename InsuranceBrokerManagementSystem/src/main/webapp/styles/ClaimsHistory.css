@@ -1,0 +1,148 @@
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9fb;
+    color: #333;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #4CAF50;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    margin-left: 20px;
+}
+
+main {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Filter Section */
+.claims-header {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+}
+
+.filters {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filters label {
+    font-size: 16px;
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.filters input[type="date"],
+.filters select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filters input[type="date"]:focus,
+.filters select:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.filters button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filters button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+/* Claims Table Styling */
+.claims-table {
+    width: 100%;
+    max-width: 800px;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.claims-table th, .claims-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.claims-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    color: #333;
+}
+
+.claims-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.claims-table th:first-child, .claims-table td:first-child {
+    border-top-left-radius: 8px;
+}
+
+.claims-table th:last-child, .claims-table td:last-child {
+    border-top-right-radius: 8px;
+}
+
+/* Footer Styling */
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #4CAF50;
+    color: white;
+    width: 100%;
+    font-size: 14px;
+    margin-top: auto;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}

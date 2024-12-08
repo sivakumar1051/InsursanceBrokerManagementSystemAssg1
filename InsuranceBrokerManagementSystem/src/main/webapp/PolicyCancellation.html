@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insurance Broker Management - Policy Cancellation</title>
+    <link rel="stylesheet" href="styles/policyCancellation.css">
+    <script>
+        const basePath = `${window.location.origin}/InsuranceBrokerManagementSystem`;
+
+        // Load customers into dropdown on page load
+        async function loadCustomers() {
+            try {
+                const response = await fetch(`${basePath}/PolicyCancellationServlet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'loadCustomers' })
+                });
+
+                if (response.ok) {
+                    const customers = await response.json();
+                    const customerDropdown = document.getElementById('customerDropdown');
+                    customers.forEach(customer => {
+                        const option = document.createElement("option");
+                        option.value = customer.name;
+                        option.textContent = customer.name;
+                        customerDropdown.appendChild(option);
+                    });
+                } else {
+                    console.error("Error loading customers:", response.status);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        // Fetch policies for the selected customer
+        async function fetchPolicies(event) {
+            event.preventDefault();
+
+            const customerName = document.getElementById('customerDropdown').value;
+            const response = await fetch(`${basePath}/PolicyCancellationServlet`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ action: 'fetchPolicies', customerName })
+            });
+
+            if (response.ok) {
+                const policies = await response.json();
+                displayPolicies(policies);
+                document.getElementById('policyTableSection').style.display = 'block';
+            } else {
+                console.error("Error fetching policies:", response.status);
+            }
+        }
+
+        // Display policies in the table or show a message if no policies are available
+        function displayPolicies(policies) {
+            const tableBody = document.querySelector("#policyTableSection tbody");
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (policies.length === 0) {
+                const noPoliciesRow = document.createElement("tr");
+                noPoliciesRow.innerHTML = `
+                    <td colspan="3" class="no-policies-message">There are no active policies for this customer.</td>
+                `;
+                tableBody.appendChild(noPoliciesRow);
+            } else {
+                policies.forEach(policy => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${policy.customerName}</td>
+                        <td>${policy.policyName}</td>
+                        <td><button class="cancel-button" onclick="openCancellationPopup('${policy.customerName}', '${policy.policyName}')">Cancel</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        // Open the popup with cancellation form
+        function openCancellationPopup(customerName, policyName) {
+            document.getElementById('popupCustomerName').textContent = customerName;
+            document.getElementById('popupPolicyName').textContent = policyName;
+            document.getElementById('popupCustomerNameInput').value = customerName;
+            document.getElementById('popupPolicyNameInput').value = policyName;
+            document.getElementById('cancellationPopup').style.display = 'block';
+        }
+
+        // Close the popup
+        function closeCancellationPopup() {
+            document.getElementById('cancellationPopup').style.display = 'none';
+        }
+
+        // Submit cancellation form
+        async function submitCancellationForm(event) {
+            event.preventDefault();
+
+            const formData = new URLSearchParams();
+            formData.append("action", "cancelPolicy");
+            formData.append("customerName", document.getElementById("popupCustomerNameInput").value);
+            formData.append("policyName", document.getElementById("popupPolicyNameInput").value);
+            formData.append("reason", document.getElementById("cancellationReason").value);
+
+            const response = await fetch(`${basePath}/PolicyCancellationServlet`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
+
+            if (response.ok) {
+                alert("Policy successfully canceled.");
+                closeCancellationPopup();
+                fetchPolicies(new Event("submit")); // Refresh policies after cancellation
+            } else {
+                alert("Error canceling policy. Please try again.");
+            }
+        }
+
+        window.onload = loadCustomers;
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Insurance Management System - Policy Cancellation</h1>
+        <nav>
+            <a href="landingPage.html">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="cancellation-header">
+            <h2>Select Customer to Cancel Policy</h2>
+            <form id="selectCustomerForm" onsubmit="fetchPolicies(event)">
+                <select id="customerDropdown" name="customerDropdown" required>
+                    <option value="">-- Select Customer --</option>
+                </select>
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+
+        <!-- Policy Table Section -->
+        <section id="policyTableSection" class="cancellation-content" style="display: none;">
+            <h2>Active Policies</h2>
+            <table class="policy-table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Policy Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows populated dynamically -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Cancellation Popup -->
+        <div id="cancellationPopup" class="popup">
+            <div class="popup-content">
+                <h3>Cancel Policy</h3>
+                <p><strong>Customer Name:</strong> <span id="popupCustomerName"></span></p>
+                <p><strong>Policy Name:</strong> <span id="popupPolicyName"></span></p>
+                <form onsubmit="submitCancellationForm(event)">
+                    <input type="hidden" id="popupCustomerNameInput">
+                    <input type="hidden" id="popupPolicyNameInput">
+                    <label for="cancellationReason">Reason for Cancellation:</label>
+                    <textarea id="cancellationReason" required></textarea>
+                    <div class="popup-actions">
+                        <button type="submit">Submit</button>
+                        <button type="button" onclick="closeCancellationPopup()">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2023 Insurance Broker Management System</p>
+    </footer>
+</body>
+</html>

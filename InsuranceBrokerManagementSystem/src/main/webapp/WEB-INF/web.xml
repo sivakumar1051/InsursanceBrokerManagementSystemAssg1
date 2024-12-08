@@ -48,6 +48,46 @@
 		<servlet-name>LoginServlet</servlet-name>
 		<url-pattern>/loginBroker</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>QuoteServlet</servlet-name>
+		<servlet-class>com.groupfive.Insurancemanagementsystem.Controller.QuoteServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>QuoteServlet</servlet-name>
+		<url-pattern>/QuoteServlet</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>PolicyRenewalServlet</servlet-name>
+		<servlet-class>com.groupfive.Insurancemanagementsystem.Controller.PolicyRenewalServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>PolicyRenewalServlet</servlet-name>
+		<url-pattern>/PolicyRenewalServlet</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>PolicyCancellationServlet</servlet-name>
+		<servlet-class>com.groupfive.Insurancemanagementsystem.Controller.PolicyCancellationServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>PolicyCancellationServlet</servlet-name>
+		<url-pattern>/PolicyCancellationServlet</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>ClaimsHistoryServlet</servlet-name>
+		<servlet-class>com.groupfive.Insurancemanagementsystem.Controller.ClaimsHistoryServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>ClaimsHistoryServlet</servlet-name>
+		<url-pattern>/ClaimsHistoryServlet</url-pattern>
+	</servlet-mapping>
+	
 
 
 	<context-param>
@@ -90,10 +130,7 @@
     <servlet-name>ReportingServlet</servlet-name>
     <servlet-class>com.groupfive.Insurancemanagementsystem.Controller.ReportingServlet</servlet-class>
   </servlet>
-  <servlet-mapping>
-    <servlet-name>ReportingServlet</servlet-name>
-    <url-pattern>/reporting</url-pattern>
-  </servlet-mapping>
+  
   
   
 

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insurance Broker Management - Policy Renewal</title>
+    <link rel="stylesheet" href="styles/renewal.css">
+    <script>
+        const basePath = `${window.location.origin}/InsuranceBrokerManagementSystem`;
+
+        async function toggleRenewPolicyTable() {
+            document.getElementById('renewPolicyTableSection').style.display = 'block';
+            document.getElementById('viewPolicyTableSection').style.display = 'none';
+            await loadPolicies("expiring");
+        }
+
+        async function toggleViewPolicyTable() {
+            document.getElementById('viewPolicyTableSection').style.display = 'block';
+            document.getElementById('renewPolicyTableSection').style.display = 'none';
+            await loadPolicies("expired");
+        }
+
+        async function loadPolicies(actionType) {
+            try {
+                const response = await fetch(`${basePath}/PolicyRenewalServlet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ 'action': actionType })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayPolicies(data, actionType);
+                } else {
+                    console.error('Failed to load policies:', response.status);
+                    alert('Error loading policies. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error fetching policies:', error);
+                alert('An error occurred while fetching policies. Please try again.');
+            }
+        }
+
+        function displayPolicies(data, actionType) {
+            const tableBody = actionType === "expiring" ? document.querySelector("#renewPolicyTableSection tbody") : document.querySelector("#viewPolicyTableSection tbody");
+            tableBody.innerHTML = '';
+
+            data.forEach(policy => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${policy.policyNumber}</td>
+                    <td>${policy.name}</td>
+                    <td>${policy.startDate}</td>
+                    <td>${policy.endDate}</td>
+                    <td>$${policy.coverageAmount}</td>
+                    <td>$${policy.premiumAmount}</td>
+                    <td>${policy.policyType}</td>
+                    <td>${actionType === "expired" ? '<span class="expired-label">Expired</span>' : `<button class="renew-button" onclick="openRenewPopup('${policy.policyNumber}', '${policy.name}', '${policy.startDate}', '${policy.endDate}', ${policy.coverageAmount}, ${policy.premiumAmount}, '${policy.policyType}')">Renew</button>`}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        function openRenewPopup(policyNumber, name, startDate, endDate, coverageAmount, premiumAmount, policyType) {
+            document.getElementById('renewPolicyPopup').style.display = 'flex';
+            document.getElementById('popupPolicyNumber').value = policyNumber;
+            document.getElementById('popupName').value = name;
+            document.getElementById('popupStartDate').value = startDate;
+            document.getElementById('popupEndDate').value = endDate;
+            document.getElementById('popupCoverageAmount').value = coverageAmount;
+            document.getElementById('popupPremiumAmount').value = premiumAmount;
+            document.getElementById('popupPolicyType').value = policyType;
+            
+            calculatePremium(); // Initial premium calculation
+        }
+
+        function closeRenewPopup() {
+            document.getElementById('renewPolicyPopup').style.display = 'none';
+        }
+
+        function clearRenewPopup() {
+            document.getElementById('popupEndDate').value = '';
+            document.getElementById('popupCoverageAmount').value = '';
+            document.getElementById('popupPremiumAmount').value = '';
+        }
+
+        function calculatePremium() {
+            const startDate = new Date(document.getElementById('popupStartDate').value);
+            const endDate = new Date(document.getElementById('popupEndDate').value);
+            const coverageAmount = parseFloat(document.getElementById('popupCoverageAmount').value) || 0;
+
+            const termFactor = ((endDate - startDate) / (365 * 24 * 60 * 60 * 1000)) > 5 ? 0.95 : 1;
+            const baseRate = coverageAmount * (Math.random() * (0.05 - 0.001) + 0.001);
+
+            const premiumAmount = baseRate * coverageAmount * termFactor;
+            document.getElementById('popupPremiumAmount').value = premiumAmount.toFixed(2);
+        }
+
+        async function submitRenewalForm() {
+            const policyNumber = document.getElementById('popupPolicyNumber').value;
+            const endDate = document.getElementById('popupEndDate').value;
+            const coverageAmount = document.getElementById('popupCoverageAmount').value;
+            const premiumAmount = document.getElementById('popupPremiumAmount').value;
+
+            try {
+                const response = await fetch(`${basePath}/PolicyRenewalServlet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'renew',
+                        policyNumber: policyNumber,
+                        endDate: endDate,
+                        coverageAmount: coverageAmount,
+                        premiumAmount: premiumAmount
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Policy renewed successfully.');
+                    closeRenewPopup();
+                    await loadPolicies("expiring");
+                } else {
+                    alert('Failed to renew policy. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error renewing policy:', error);
+                alert('An error occurred. Please try again.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Insurance Management System - Policy Renewal</h1>
+        <nav>
+            <a href="landingPage.html">Home</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="renewal-header">
+            <button onclick="toggleRenewPolicyTable()">Renew Policy</button>
+            <button onclick="toggleViewPolicyTable()">View Policy</button>
+        </section>
+
+        <section id="renewPolicyTableSection" class="renewal-content" style="display: none;">
+            <h2>Expiring Policies</h2>
+            <table class="policy-table">
+                <thead>
+                    <tr>
+                        <th>Policy Number</th>
+                        <th>Name</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Coverage Amount</th>
+                        <th>Premium Amount</th>
+                        <th>Policy Type</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows populated dynamically -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="viewPolicyTableSection" class="renewal-content" style="display: none;">
+            <h2>Expired Policies</h2>
+            <table class="policy-table">
+                <thead>
+                    <tr>
+                        <th>Policy Number</th>
+                        <th>Name</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Coverage Amount</th>
+                        <th>Premium Amount</th>
+                        <th>Policy Type</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows populated dynamically -->
+                </tbody>
+            </table>
+        </section>
+
+        <div id="renewPolicyPopup" class="popup" style="display: none;">
+            <div class="popup-content">
+                <span class="close" onclick="closeRenewPopup()">&times;</span>
+                <h3>Renew Policy</h3>
+                <form onsubmit="event.preventDefault(); submitRenewalForm();">
+                    <label>Policy Number:</label>
+                    <input type="text" id="popupPolicyNumber" readonly>
+                    
+                    <label>Name:</label>
+                    <input type="text" id="popupName" readonly>
+
+                    <label>Start Date:</label>
+                    <input type="date" id="popupStartDate" readonly>
+
+                    <label>End Date:</label>
+                    <input type="date" id="popupEndDate" required onchange="calculatePremium()">
+
+                    <label>Coverage Amount:</label>
+                    <input type="number" id="popupCoverageAmount" required oninput="calculatePremium()">
+
+                    <label>Premium Amount:</label>
+                    <input type="text" id="popupPremiumAmount" readonly>
+
+                    <label>Policy Type:</label>
+                    <input type="text" id="popupPolicyType" readonly>
+
+                    <div class="popup-buttons">
+                        <button type="button" onclick="clearRenewPopup()">Clear</button>
+                        <button type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2023 Insurance Broker Management System</p>
+    </footer>
+</body>
+</html>
