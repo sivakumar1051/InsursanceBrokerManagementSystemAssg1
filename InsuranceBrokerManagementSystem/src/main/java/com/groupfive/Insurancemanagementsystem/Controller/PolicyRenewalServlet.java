@@ -17,6 +17,8 @@ import java.util.List;
 public class PolicyRenewalServlet extends HttpServlet {
 
     private final PolicyRenewalRepository policyRepository = new PolicyRenewalRepository();
+    private final Object lock = new Object(); // Dedicated lock object for synchronization
+
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -29,7 +31,7 @@ public class PolicyRenewalServlet extends HttpServlet {
             if ("expiring".equals(action)) {
                 // Synchronize to fetch policies expiring in the next 15 days
                 List<Policy> expiringPolicies;
-                synchronized (policyRepository) {
+                synchronized (lock) {
                     expiringPolicies = policyRepository.getPoliciesExpiringByDate(endDate);
                 }
                 JSONArray jsonArray = convertPoliciesToJson(expiringPolicies);
@@ -38,7 +40,7 @@ public class PolicyRenewalServlet extends HttpServlet {
             } else if ("expired".equals(action)) {
                 // Synchronize to fetch policies that have already expired
                 List<Policy> expiredPolicies;
-                synchronized (policyRepository) {
+                synchronized (lock) {
                     expiredPolicies = policyRepository.getExpiredPolicies(endDate);
                 }
                 JSONArray jsonArray = convertPoliciesToJson(expiredPolicies);

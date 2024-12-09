@@ -12,6 +12,8 @@ import java.io.IOException;
 
 public class QuoteServlet extends HttpServlet {
 
+    private final Object lock = new Object(); // Object for synchronization
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Retrieve form parameters
@@ -31,7 +33,7 @@ public class QuoteServlet extends HttpServlet {
         
         // Synchronize access to the repository if needed
         boolean isSaved;
-        synchronized (this) {
+        synchronized (lock) {
             QuoteRepository quoteRepo = new QuoteRepository();
             isSaved = quoteRepo.saveQuote(quote);
         }
