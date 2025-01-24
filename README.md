@@ -6,7 +6,7 @@ Java-based web application for insurance brokers to efficiently manage customer 
 Servlet-based backend for handling HTTP requests
 Service layer for business logic implementation.
 Repository pattern for CRUD operations on file-based storage (XML/JSON).
-Proper separation of concerns adhering to J2EE best practices.
+Proper separation of concerns adhering to J2EE best practiceskjqjwqd
 Web.xml deployment descriptor for servlet mappings.
 Streamlined interface for managing customer information, policies, and claims.
 
